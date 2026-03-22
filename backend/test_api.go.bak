@@ -1,0 +1,35 @@
+package main
+
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+)
+
+func main() {
+	// 测试登录接口
+	loginData := `{"username":"admin","password":"admin123"}`
+	resp, err := http.Post("http://localhost:8080/api/auth/login", "application/json", ioutil.NopCloser(ioutil.NopCloser(ioutil.NopReader())))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer resp.Body.Close()
+	
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Login Response:", string(body))
+	
+	// 测试收藏接口
+	req, _ := http.NewRequest("GET", "http://localhost:8080/api/practice/favorites?page=1&pageSize=10", nil)
+	req.Header.Set("Authorization", "Bearer YOUR_TOKEN_HERE")
+	client := &http.Client{}
+	resp2, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer resp2.Body.Close()
+	
+	body2, _ := ioutil.ReadAll(resp2.Body)
+	fmt.Println("Favorites Response:", string(body2))
+}

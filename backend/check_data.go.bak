@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+	"practice-system/models"
+)
+
+func main() {
+	models.InitDB()
+	
+	// 检查答题记录
+	var count int64
+	models.GetDB().Model(&models.AnswerRecord{}).Count(&count)
+	fmt.Printf("答题记录总数：%d\n", count)
+	
+	// 检查题目数量
+	var questionCount int64
+	models.GetDB().Model(&models.Question{}).Count(&questionCount)
+	fmt.Printf("题目总数：%d\n", questionCount)
+	
+	// 检查用户数量
+	var userCount int64
+	models.GetDB().Model(&models.User{}).Count(&userCount)
+	fmt.Printf("用户总数：%d\n", userCount)
+}

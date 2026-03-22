@@ -1,0 +1,424 @@
+/* 移动端响应式样式 */
+
+/* 全局移动端优化 */
+@media (max-width: 768px) {
+  /* 防止 iOS 自动缩放 */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  /* 触摸友好的最小尺寸 */
+  button, .ant-btn, .ant-btn-icon-only {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 16px;
+  }
+  
+  /* 表格优化 - 卡片式布局 */
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .ant-table {
+    font-size: 14px;
+    min-width: 600px; /* 保证表格可横向滚动 */
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 12px 8px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  
+  .ant-table-tbody > tr > td {
+    padding: 12px 8px;
+    white-space: nowrap;
+  }
+  
+  /* 表单输入优化 */
+  .ant-input,
+  .ant-input-password,
+  .ant-input-affix-wrapper,
+  .ant-select-selector,
+  .ant-picker {
+    min-height: 44px;
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+  
+  /* 卡片优化 */
+  .ant-card {
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+  
+  .ant-card-body {
+    padding: 16px;
+  }
+  
+  .ant-card-head {
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+  
+  /* 分页优化 */
+  .ant-pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  
+  .ant-pagination-item {
+    min-width: 36px;
+    height: 36px;
+    line-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    min-width: 36px;
+    height: 36px;
+  }
+  
+  /* 标签优化 */
+  .ant-tag {
+    margin: 2px 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  
+  /* 统计卡片优化 */
+  .ant-statistic {
+    margin-bottom: 16px;
+  }
+  
+  .ant-statistic-title {
+    font-size: 14px;
+  }
+  
+  .ant-statistic-content {
+    font-size: 24px;
+  }
+  
+  /* 筛选器优化 */
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  /* 下拉菜单优化 */
+  .ant-dropdown-menu-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+  }
+  
+  /* Radio 和 Checkbox 优化 */
+  .ant-radio-wrapper,
+  .ant-checkbox-wrapper {
+    margin-bottom: 12px;
+    padding: 8px;
+  }
+  
+  .ant-radio-button-wrapper {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+  }
+  
+  /* Alert 优化 */
+  .ant-alert {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  
+  /* Modal 优化 */
+  .ant-modal {
+    max-width: 90vw;
+    margin: 0 auto;
+  }
+  
+  .ant-modal-body {
+    padding: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  
+  /* Drawer 优化 */
+  .ant-drawer-body {
+    padding: 16px;
+  }
+  
+  /* Space 组件优化 */
+  .ant-space-item {
+    margin-bottom: 8px;
+  }
+  
+  /* Row/Col 优化 */
+  .ant-row {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+  
+  .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+/* 超小屏幕设备（小手机） */
+@media (max-width: 480px) {
+  /* 表格进一步优化 */
+  .ant-table {
+    font-size: 13px;
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+  
+  .ant-table-tbody > tr > td {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+  
+  /* 卡片进一步优化 */
+  .ant-card-body {
+    padding: 12px;
+  }
+  
+  .ant-card-head {
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+  
+  /* 按钮进一步优化 */
+  .ant-btn {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .ant-btn-sm {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  /* 表单进一步优化 */
+  .ant-form-item-label > label {
+    font-size: 14px;
+  }
+  
+  /* 标题优化 */
+  .ant-typography h1,
+  .ant-typography h2 {
+    font-size: 20px;
+  }
+  
+  .ant-typography h3 {
+    font-size: 18px;
+  }
+  
+  .ant-typography h4 {
+    font-size: 16px;
+  }
+  
+  /* 统计数字优化 */
+  .ant-statistic-content {
+    font-size: 20px;
+  }
+  
+  /* 标签进一步优化 */
+  .ant-tag {
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .ant-modal {
+    top: 8px;
+    bottom: 8px;
+    margin: 0 auto;
+  }
+  
+  .ant-drawer {
+    max-height: 100vh;
+  }
+}
+  }
+}
+
+/* 平板设备 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .ant-table {
+    font-size: 14px;
+  }
+  
+  .ant-card {
+    margin-bottom: 20px;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  /* 增加触摸目标大小 */
+  .ant-btn,
+  .ant-menu-item,
+  .ant-dropdown-menu-item,
+  .ant-pagination-item {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* 移除 hover 效果，改用 active */
+  .ant-btn:hover {
+    opacity: 1;
+  }
+  
+  .ant-btn:active {
+    opacity: 0.7;
+  }
+  
+  /* 菜单项触摸优化 */
+  .ant-menu-item {
+    padding: 12px 16px !important;
+  }
+  
+  /* 表格行触摸优化 */
+  .ant-table-row {
+    min-height: 48px;
+  }
+  
+  /* 链接触摸优化 */
+  a {
+    padding: 8px 0;
+    display: inline-block;
+  }
+}
+
+/* 防止 iOS 自动缩放 */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+  body {
+    background: #141414;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  
+  .ant-card {
+    background: #1f1f1f;
+  }
+  
+  .ant-table {
+    background: #1f1f1f;
+  }
+  
+  .ant-table-thead > tr > th {
+    background: #1f1f1f;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  
+  .ant-table-tbody > tr > td {
+    background: #1f1f1f;
+    color: rgba(255, 255, 255, 0.85);
+    border-color: #303030;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 移动端工具类 */
+@media (max-width: 768px) {
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  .mobile-center {
+    text-align: center !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+  
+  .mobile-mt-0 {
+    margin-top: 0 !important;
+  }
+  
+  .mobile-mb-0 {
+    margin-bottom: 0 !important;
+  }
+  
+  .mobile-p-0 {
+    padding: 0 !important;
+  }
+  
+  .mobile-flex-column {
+    flex-direction: column !important;
+  }
+  
+  .mobile-flex-wrap {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* 平板设备优化 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .ant-table {
+    font-size: 14px;
+  }
+  
+  .ant-card {
+    margin-bottom: 20px;
+  }
+  
+  .ant-layout-sider {
+    width: 180px !important;
+  }
+}
+
+/* 暗黑模式支持 */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #141414;
+    color: #ffffff;
+  }
+}
+
+/* 减少动画，帮助有运动敏感的用户 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

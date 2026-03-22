@@ -1,0 +1,88 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 防止移动端下拉刷新 */
+  overscroll-behavior: none;
+  /* 防止文本选择导致的缩放 */
+  touch-action: manipulation;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  /* 禁止长按选中 */
+  * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* 表单元素允许选中 */
+  input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  
+  /* 点击高亮效果 */
+  a, button, input, select, textarea {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* 平滑滚动 */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* 防止图片拖动 */
+  img {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+}
+
+/* 滚动条美化 - 浅色模式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 深色模式滚动条 */
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: #262626;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: #595959;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: #8a8a8a;
+}

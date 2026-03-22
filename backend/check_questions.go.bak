@@ -1,0 +1,42 @@
+package main
+
+import (
+	"fmt"
+	"practice-system/models"
+)
+
+func main() {
+	// 初始化数据库
+	models.InitDB()
+	
+	// 检查题目数量
+	var questionCount int64
+	models.GetDB().Model(&models.Question{}).Count(&questionCount)
+	fmt.Printf("题目总数：%d\n", questionCount)
+	
+	// 获取前 5 道题目
+	var questions []models.Question
+	models.GetDB().Limit(5).Find(&questions)
+	
+	if len(questions) > 0 {
+		fmt.Println("\n前 5 道题目:")
+		for i, q := range questions {
+			fmt.Printf("%d. [ID:%d] %s - %s\n", i+1, q.ID, q.Title, q.Type)
+		}
+	} else {
+		fmt.Println("数据库中没有题目")
+	}
+	
+	// 检查用户数量
+	var userCount int64
+	models.GetDB().Model(&models.User{}).Count(&userCount)
+	fmt.Printf("\n用户总数：%d\n", userCount)
+	
+	// 检查答题记录
+	var recordCount int64
+	models.GetDB().Model(&models.AnswerRecord{}).Count(&recordCount)
+	fmt.Printf("答题记录总数：%d\n", recordCount)
+	
+	fmt.Println("\n按回车键退出...")
+	fmt.Scanln()
+}
