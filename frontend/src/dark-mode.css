@@ -16,6 +16,9 @@
   --scrollbar-track: #f1f1f1;
   --scrollbar-thumb: #888888;
   --scrollbar-thumb-hover: #555555;
+  --star-inactive: #d9d9d9;
+  --subtle-text: #666666;
+  --muted-text: #999999;
 }
 
 /* 深色模式 */
@@ -34,6 +37,9 @@
   --scrollbar-track: #262626;
   --scrollbar-thumb: #595959;
   --scrollbar-thumb-hover: #8a8a8a;
+  --star-inactive: #4a4a4a;
+  --subtle-text: rgba(255, 255, 255, 0.65);
+  --muted-text: rgba(255, 255, 255, 0.45);
 }
 
 /* 应用深色模式到 body */
@@ -57,12 +63,24 @@
 
 /* Ant Design 深色模式覆盖 */
 [data-theme='dark'] .ant-layout {
-  background: var(--bg-primary);
+  background: var(--bg-primary) !important;
 }
 
 [data-theme='dark'] .ant-layout-header {
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--border-color);
+  background: var(--header-bg) !important;
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Header 内部元素文字颜色 */
+[data-theme='dark'] .ant-layout-header * {
+  color: var(--text-primary);
+}
+
+/* 嵌套 Layout 背景 */
+[data-theme='dark'] .ant-layout .ant-layout {
+  background: var(--bg-primary) !important;
 }
 
 [data-theme='dark'] .ant-layout-content {
@@ -191,9 +209,51 @@
 [data-theme='dark'] .ant-input-affix-wrapper,
 [data-theme='dark'] .ant-select-selector,
 [data-theme='dark'] .ant-picker {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Select 选择器 - 额外加强 */
+[data-theme='dark'] .ant-select .ant-select-selector {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-select-outlined .ant-select-selector {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+[data-theme='dark'] .ant-select-single .ant-select-selector {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Input 搜索框 - 额外加强 */
+[data-theme='dark'] .ant-input-outlined,
+[data-theme='dark'] .ant-input-affix-wrapper-outlined {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .ant-input-search .ant-input {
+  background: var(--bg-secondary) !important;
+}
+
+[data-theme='dark'] .ant-input-search .ant-input-group-addon {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .ant-input-search .ant-input-group-addon .ant-btn {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
 }
 
 [data-theme='dark'] .ant-input:hover,
@@ -201,16 +261,17 @@
 [data-theme='dark'] .ant-input-affix-wrapper:hover,
 [data-theme='dark'] .ant-select-selector:hover,
 [data-theme='dark'] .ant-picker:hover {
-  border-color: #40a9ff;
+  border-color: #40a9ff !important;
 }
 
 [data-theme='dark'] .ant-input:focus,
 [data-theme='dark'] .ant-input-password:focus,
 [data-theme='dark'] .ant-input-affix-wrapper:focus,
 [data-theme='dark'] .ant-select-selector:focus,
-[data-theme='dark'] .ant-picker:focus {
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+[data-theme='dark'] .ant-picker:focus,
+[data-theme='dark'] .ant-select-focused .ant-select-selector {
+  border-color: #1890ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
 }
 
 [data-theme='dark'] .ant-input::placeholder,
@@ -280,13 +341,47 @@
 }
 
 [data-theme='dark'] .ant-message-notice-content {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  box-shadow: var(--card-shadow);
+  background: #2a2a2a !important;
+  background-color: #2a2a2a !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid var(--border-color);
+}
+
+/* Ant Design v5 message 组件 - 多层级选择器兜底 */
+[data-theme='dark'] .ant-message .ant-message-notice .ant-message-notice-content {
+  background: #2a2a2a !important;
+  background-color: #2a2a2a !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-message-notice-content .ant-message-custom-content {
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-message-notice-content .ant-message-custom-content span {
+  color: var(--text-primary) !important;
+}
+
+/* message 通配 - 捕获 v5 CSS-in-JS 生成的容器 */
+[data-theme='dark'] .ant-message [class*="message-notice"] [class*="notice-content"] {
+  background: #2a2a2a !important;
+  background-color: #2a2a2a !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme='dark'] .ant-message [class*="message-notice"] [class*="custom-content"] {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme='dark'] .ant-message [class*="message-notice"] [class*="custom-content"] span {
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 
 [data-theme='dark'] .ant-notification-notice {
-  background: var(--bg-secondary);
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
   color: var(--text-primary);
   box-shadow: var(--card-shadow);
 }
@@ -551,7 +646,579 @@
   height: 18px;
 }
 
-/* 深色模式过渡动画 */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+/* Select 下拉面板 */
+[data-theme='dark'] .ant-select-dropdown {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+[data-theme='dark'] .ant-select-dropdown .ant-select-item {
+  color: var(--text-primary) !important;
+  background: transparent;
+}
+
+[data-theme='dark'] .ant-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: var(--hover-bg) !important;
+}
+
+[data-theme='dark'] .ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: rgba(24, 144, 255, 0.15) !important;
+  color: #1890ff !important;
+}
+
+[data-theme='dark'] .ant-select-item-empty {
+  color: var(--text-tertiary);
+}
+
+/* Select 多选标签 */
+[data-theme='dark'] .ant-select-selection-item {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-select-selection-item-remove {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-select-selection-placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* Popconfirm / Popover */
+[data-theme='dark'] .ant-popover-inner {
+  background: var(--bg-secondary);
+  box-shadow: var(--card-shadow);
+}
+
+[data-theme='dark'] .ant-popover-title {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-popover-inner-content {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-popconfirm-message-title {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-popover-arrow::before,
+[data-theme='dark'] .ant-popover-arrow::after {
+  background: var(--bg-secondary);
+}
+
+/* Tooltip */
+[data-theme='dark'] .ant-tooltip-inner {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-tooltip-arrow::before {
+  background: var(--bg-tertiary);
+}
+
+/* Alert 变体 */
+[data-theme='dark'] .ant-alert-success {
+  background: rgba(82, 196, 26, 0.1);
+  border-color: rgba(82, 196, 26, 0.3);
+}
+
+[data-theme='dark'] .ant-alert-info {
+  background: rgba(24, 144, 255, 0.1);
+  border-color: rgba(24, 144, 255, 0.3);
+}
+
+[data-theme='dark'] .ant-alert-warning {
+  background: rgba(250, 173, 20, 0.1);
+  border-color: rgba(250, 173, 20, 0.3);
+}
+
+[data-theme='dark'] .ant-alert-error {
+  background: rgba(255, 77, 79, 0.1);
+  border-color: rgba(255, 77, 79, 0.3);
+}
+
+/* Pagination 补充 */
+[data-theme='dark'] .ant-pagination-prev .ant-pagination-item-link,
+[data-theme='dark'] .ant-pagination-next .ant-pagination-item-link {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-pagination-disabled .ant-pagination-item-link {
+  color: var(--text-tertiary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-pagination-options .ant-select-selector {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-pagination-total-text {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-pagination-jump-prev,
+[data-theme='dark'] .ant-pagination-jump-next {
+  color: var(--text-secondary);
+}
+
+/* Table 排序/筛选图标 */
+[data-theme='dark'] .ant-table-column-sorter {
+  color: var(--text-tertiary);
+}
+
+[data-theme='dark'] .ant-table-filter-trigger {
+  color: var(--text-tertiary);
+}
+
+[data-theme='dark'] .ant-table-cell-fix-left,
+[data-theme='dark'] .ant-table-cell-fix-right {
+  background: var(--bg-secondary);
+}
+
+[data-theme='dark'] .ant-table-placeholder {
+  background: var(--bg-secondary);
+}
+
+[data-theme='dark'] .ant-table-placeholder .ant-empty-description {
+  color: var(--text-secondary);
+}
+
+/* Modal footer */
+[data-theme='dark'] .ant-modal-footer {
+  border-top-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-modal-confirm-body .ant-modal-confirm-title {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-modal-confirm-body .ant-modal-confirm-content {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-modal-close {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-modal-close:hover {
+  color: var(--text-primary);
+}
+
+/* Drawer footer */
+[data-theme='dark'] .ant-drawer-footer {
+  border-top-color: var(--border-color);
+}
+
+/* Collapse/Accordion */
+[data-theme='dark'] .ant-collapse {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-collapse-item {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-collapse-header {
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-collapse-content {
+  background: var(--bg-primary);
+  border-top-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Segmented 分段器 */
+[data-theme='dark'] .ant-segmented {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-segmented-item-selected {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Switch */
+[data-theme='dark'] .ant-switch {
+  background: var(--bg-tertiary);
+}
+
+[data-theme='dark'] .ant-switch-checked {
+  background: #1890ff;
+}
+
+/* Badge */
+[data-theme='dark'] .ant-badge-status-text {
+  color: var(--text-primary);
+}
+
+/* Breadcrumb */
+[data-theme='dark'] .ant-breadcrumb-link {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-breadcrumb-link a {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-breadcrumb-link a:hover {
+  color: #1890ff;
+}
+
+[data-theme='dark'] .ant-breadcrumb-separator {
+  color: var(--text-tertiary);
+}
+
+/* InputNumber */
+[data-theme='dark'] .ant-input-number {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-input-number-handler-wrap {
+  background: var(--bg-tertiary);
+  border-left-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-input-number-handler {
+  border-bottom-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-input-number-handler:hover {
+  color: #1890ff;
+}
+
+/* Empty */
+[data-theme='dark'] .ant-empty-img-simple-ellipse {
+  fill: var(--bg-tertiary);
+}
+
+[data-theme='dark'] .ant-empty-img-simple-path {
+  fill: var(--bg-tertiary);
+}
+
+/* Result */
+[data-theme='dark'] .ant-result-title {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-result-subtitle {
+  color: var(--text-secondary);
+}
+
+/* Spin */
+[data-theme='dark'] .ant-spin-text {
+  color: var(--text-secondary);
+}
+
+/* Card actions */
+[data-theme='dark'] .ant-card-actions {
+  background: var(--bg-tertiary);
+  border-top-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-card-actions > li {
+  border-right-color: var(--border-color);
+}
+
+/* Menu light mode (for drawer) */
+[data-theme='dark'] .ant-menu-light {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-menu-light .ant-menu-item {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-menu-light .ant-menu-item:hover {
+  background: var(--hover-bg);
+}
+
+[data-theme='dark'] .ant-menu-light .ant-menu-item-selected {
+  background: rgba(24, 144, 255, 0.15);
+  color: #1890ff;
+}
+
+/* 深色模式过渡动画 - 仅对关键属性 */
+body,
+.ant-layout,
+.ant-layout-header,
+.ant-layout-content,
+.ant-layout-sider,
+.ant-card,
+.ant-table,
+.ant-modal-content,
+.ant-drawer-content,
+.ant-input,
+.ant-select-selector,
+.ant-btn {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===== 深色模式增强覆盖 ===== */
+
+/* Ant Design v5 CSS-in-JS 兜底覆盖 */
+[data-theme='dark'] .ant-table-wrapper {
+  background: transparent;
+}
+
+[data-theme='dark'] .ant-table-container {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .ant-table-content {
+  background: var(--bg-secondary);
+}
+
+[data-theme='dark'] .ant-table-header {
+  background: var(--bg-tertiary);
+}
+
+[data-theme='dark'] .ant-table-tbody > tr.ant-table-placeholder:hover > td {
+  background: var(--bg-secondary);
+}
+
+/* Card 内嵌 Card（收藏页移动端列表等） */
+[data-theme='dark'] .ant-card .ant-card {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-card-meta-title {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-card-meta-description {
+  color: var(--text-secondary);
+}
+
+/* Form 表单 */
+[data-theme='dark'] .ant-form {
+  color: var(--text-primary);
+}
+
+/* TextArea */
+[data-theme='dark'] .ant-input-textarea textarea {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* InputNumber */
+[data-theme='dark'] .ant-input-number-input {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+/* Select 清除/箭头 */
+[data-theme='dark'] .ant-select-clear {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .ant-select-arrow {
+  color: var(--text-secondary);
+}
+
+/* Radio.Button 深色模式 */
+[data-theme='dark'] .ant-radio-button-wrapper {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-radio-button-wrapper:hover {
+  color: #1890ff;
+}
+
+[data-theme='dark'] .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  background: rgba(24, 144, 255, 0.15) !important;
+  border-color: #1890ff !important;
+  color: #1890ff;
+}
+
+/* Statistic 组件 */
+[data-theme='dark'] .ant-statistic {
+  color: var(--text-primary);
+}
+
+/* Empty 组件 SVG */
+[data-theme='dark'] .ant-empty-img-simple-g {
+  stroke: var(--border-color);
+}
+
+/* Pagination 快速跳转 */
+[data-theme='dark'] .ant-pagination-options-quick-jumper input {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* 通用: 捕获内联白色背景 */
+[data-theme='dark'] *[style*="background: rgb(255, 255, 255)"],
+[data-theme='dark'] *[style*="background: #fff"],
+[data-theme='dark'] *[style*="background:#fff"],
+[data-theme='dark'] *[style*="background-color: rgb(255, 255, 255)"],
+[data-theme='dark'] *[style*="background-color: #fff"],
+[data-theme='dark'] *[style*="background-color:#fff"] {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Ant Design v5 应用容器 */
+[data-theme='dark'] .ant-app {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Modal mask */
+[data-theme='dark'] .ant-modal-mask {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+/* Card 边框 */
+[data-theme='dark'] .ant-card-bordered {
+  border-color: var(--border-color);
+}
+
+/* 表格展开行 */
+[data-theme='dark'] .ant-table-expanded-row > td {
+  background: var(--bg-tertiary);
+}
+
+/* 保证内容区域无白色块 */
+[data-theme='dark'] .ant-layout-content {
+  background: var(--bg-primary) !important;
+}
+
+/* Spin 遮罩 */
+[data-theme='dark'] .ant-spin-nested-loading > div > .ant-spin {
+  background: rgba(20, 20, 20, 0.6);
+}
+
+/* DatePicker 面板 */
+[data-theme='dark'] .ant-picker-panel-container {
+  background: var(--bg-secondary);
+}
+
+[data-theme='dark'] .ant-picker-panel {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-picker-cell {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ant-picker-header {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme='dark'] .ant-picker-footer {
+  border-top-color: var(--border-color);
+}
+
+/* ===== Header 深色模式底部边框 ===== */
+[data-theme='dark'] .ant-layout-header {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* ===== Select 全面覆盖 (Ant Design v5 CSS-in-JS 优先级) ===== */
+[data-theme='dark'] .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+[data-theme='dark'] .ant-select-multiple .ant-select-selector {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Select 搜索输入 */
+[data-theme='dark'] .ant-select-selection-search-input {
+  color: var(--text-primary) !important;
+}
+
+/* Select 选中值 */
+[data-theme='dark'] .ant-select-selection-item {
+  color: var(--text-primary) !important;
+}
+
+/* Input 全面覆盖 */
+[data-theme='dark'] .ant-input-outlined {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .ant-input-outlined:hover {
+  border-color: #40a9ff !important;
+}
+
+[data-theme='dark'] .ant-input-outlined:focus,
+[data-theme='dark'] .ant-input-outlined.ant-input-focused {
+  border-color: #1890ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+/* Input 前缀/后缀背景 */
+[data-theme='dark'] .ant-input-group-addon {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Input Search 按钮 */
+[data-theme='dark'] .ant-input-search-button {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] .ant-input-search-button:hover {
+  color: #1890ff !important;
+  border-color: #1890ff !important;
+}
+
+/* Affix Wrapper 全面覆盖 */
+[data-theme='dark'] .ant-input-affix-wrapper {
+  background: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .ant-input-affix-wrapper .ant-input {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* Select/Input placeholder */
+[data-theme='dark'] .ant-select-selection-placeholder,
+[data-theme='dark'] .ant-input::placeholder,
+[data-theme='dark'] .ant-input-affix-wrapper input::placeholder {
+  color: var(--text-tertiary) !important;
 }

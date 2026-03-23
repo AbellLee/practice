@@ -30,7 +30,7 @@ const Layout: React.FC = () => {
     return document.documentElement.getAttribute('data-theme') === 'dark';
   });
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer, colorBgLayout, borderRadiusLG },
   } = theme.useToken();
 
   // 监听窗口大小变化
@@ -223,6 +223,7 @@ const Layout: React.FC = () => {
             top: 0,
             zIndex: 100,
             boxShadow: isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+            borderBottom: isDarkMode ? '1px solid #424242' : 'none',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -270,7 +271,7 @@ const Layout: React.FC = () => {
                     borderRadius: 6,
                     transition: 'background 0.3s',
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                   <Avatar icon={<UserOutlined />} size={isMobile ? 'small' : 'default'} />
@@ -284,7 +285,7 @@ const Layout: React.FC = () => {
           style={{
             margin: isMobile ? 8 : 24,
             padding: isMobile ? 12 : 24,
-            background: colorBgContainer,
+            background: isDarkMode ? colorBgLayout : colorBgContainer,
             borderRadius: borderRadiusLG,
             minHeight: 280,
             overflow: 'auto',

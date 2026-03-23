@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, theme, App as AntApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -73,6 +73,21 @@ function App() {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
+  // 监听 data-theme 属性变化（Layout 中切换主题时会修改此属性）
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.documentElement.getAttribute('data-theme');
+          const newIsDark = newTheme === 'dark';
+          setIsDarkMode(prev => prev !== newIsDark ? newIsDark : prev);
+        }
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+
   // 监听系统主题变化
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -91,8 +106,85 @@ function App() {
       locale={zhCN}
       theme={{
         algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        ...(isDarkMode ? {
+          token: {
+            colorBgContainer: '#1f1f1f',
+            colorBgElevated: '#2a2a2a',
+            colorBgLayout: '#141414',
+            colorBorder: '#424242',
+            colorBorderSecondary: '#353535',
+          },
+          components: {
+            Layout: {
+              bodyBg: '#141414',
+              headerBg: '#1f1f1f',
+              siderBg: '#001529',
+            },
+            Card: {
+              colorBgContainer: '#1f1f1f',
+            },
+            Table: {
+              colorBgContainer: '#1f1f1f',
+              headerBg: '#262626',
+              rowHoverBg: 'rgba(255,255,255,0.06)',
+              borderColor: '#424242',
+            },
+            Input: {
+              colorBgContainer: '#141414',
+              activeBorderColor: '#1890ff',
+              hoverBorderColor: '#40a9ff',
+            },
+            Select: {
+              colorBgContainer: '#141414',
+              colorBgElevated: '#1f1f1f',
+              optionActiveBg: 'rgba(255,255,255,0.08)',
+              optionSelectedBg: 'rgba(24,144,255,0.15)',
+            },
+            Modal: {
+              contentBg: '#1f1f1f',
+              headerBg: '#1f1f1f',
+            },
+            Pagination: {
+              colorBgContainer: '#1f1f1f',
+              itemActiveBg: '#1890ff',
+            },
+            Button: {
+              defaultBg: '#1f1f1f',
+              defaultBorderColor: '#424242',
+            },
+            Radio: {
+              buttonSolidCheckedBg: '#1890ff',
+            },
+            Statistic: {
+              colorTextDescription: 'rgba(255,255,255,0.65)',
+            },
+            Drawer: {
+              colorBgElevated: '#1f1f1f',
+            },
+            Dropdown: {
+              colorBgElevated: '#1f1f1f',
+            },
+            Tag: {
+              defaultBg: '#262626',
+              defaultColor: 'rgba(255,255,255,0.85)',
+            },
+            Alert: {
+              colorInfoBg: 'rgba(24,144,255,0.1)',
+              colorSuccessBg: 'rgba(82,196,26,0.1)',
+              colorWarningBg: 'rgba(250,173,20,0.1)',
+              colorErrorBg: 'rgba(255,77,79,0.1)',
+            },
+            Message: {
+              contentBg: '#2a2a2a',
+            },
+            Notification: {
+              colorBgElevated: '#2a2a2a',
+            },
+          },
+        } : {}),
       }}
     >
+      <AntApp>
       <BrowserRouter>
         <AuthProvider>
           <Routes>
@@ -112,6 +204,7 @@ function App() {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
+      </AntApp>
     </ConfigProvider>
   );
 }
