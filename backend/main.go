@@ -29,7 +29,7 @@ func main() {
 	setupFrontend(r)
 
 	// 启动服务器（监听所有网络接口，支持局域网访问）
-	r.Run("0.0.0.0:8080")
+	r.Run("0.0.0.0:18080")
 }
 
 // setupFrontend 配置前端静态文件服务
@@ -112,6 +112,7 @@ func setupRoutes(r *gin.Engine) {
 			questionsAuth.Use(middleware.JWTMiddleware())
 			{
 				questionsAuth.POST("", controllers.CreateQuestion)
+				questionsAuth.POST("/import", controllers.ImportQuestions)
 				questionsAuth.PUT("/:id", controllers.UpdateQuestion)
 				questionsAuth.DELETE("/:id", controllers.DeleteQuestion)
 			}
