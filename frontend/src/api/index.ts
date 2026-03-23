@@ -1,5 +1,5 @@
 import api from '../utils/request';
-import type { User, Question, AnswerRecord, UserStats, ApiResponse, PaginatedResponse } from '../types';
+import type { User, Question, AnswerRecord, UserStats, ApiResponse, PaginatedResponse, Favorite, WrongBook, DailyPractice, Statistics } from '../types';
 
 // 认证相关 API
 export const authApi = {

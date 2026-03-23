@@ -1,0 +1,10 @@
+node_modules
+frontend/node_modules
+backend/dist
+backend/practice.db
+backend/practice-system.exe
+backend/*.bak
+*.md
+.git
+.gitignore
+memory/

@@ -1,9 +1,13 @@
 package main
 
 import (
+	"net/http"
+	"os"
+	"path/filepath"
 	"practice-system/controllers"
 	"practice-system/middleware"
 	"practice-system/models"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,8 +25,58 @@ func main() {
 	// 设置路由
 	setupRoutes(r)
 
+	// 设置前端静态文件服务
+	setupFrontend(r)
+
 	// 启动服务器（监听所有网络接口，支持局域网访问）
 	r.Run("0.0.0.0:8080")
+}
+
+// setupFrontend 配置前端静态文件服务
+func setupFrontend(r *gin.Engine) {
+	// 获取可执行文件所在目录
+	execDir, _ := os.Getwd()
+	distPath := filepath.Join(execDir, "dist")
+
+	// 检查 dist 目录是否存在
+	if _, err := os.Stat(distPath); os.IsNotExist(err) {
+		gin.DefaultWriter.Write([]byte("[WARNING] dist directory not found, frontend will not be served\n"))
+		return
+	}
+
+	// 服务静态文件（JS/CSS/图片等）
+	r.Use(func(c *gin.Context) {
+		path := c.Request.URL.Path
+
+		// 跳过 API 路由
+		if strings.HasPrefix(path, "/api") {
+			c.Next()
+			return
+		}
+
+		// 尝试提供静态文件
+		filePath := filepath.Join(distPath, filepath.Clean(path))
+		// 防止路径遍历攻击
+		if !strings.HasPrefix(filePath, distPath) {
+			c.Next()
+			return
+		}
+		if info, err := os.Stat(filePath); err == nil && !info.IsDir() {
+			http.ServeFile(c.Writer, c.Request, filePath)
+			c.Abort()
+			return
+		}
+
+		// SPA 回退：所有非文件请求返回 index.html
+		indexPath := filepath.Join(distPath, "index.html")
+		if _, err := os.Stat(indexPath); err == nil {
+			http.ServeFile(c.Writer, c.Request, indexPath)
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	})
 }
 
 // setupRoutes 设置所有路由

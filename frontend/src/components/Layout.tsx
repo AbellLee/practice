@@ -243,7 +243,7 @@ const Layout: React.FC = () => {
                 maxWidth: isMobile ? 'calc(100vw - 120px)' : 'none',
               }}
             >
-              {menuItems.find((item) => item?.key === location.pathname)?.label || '刷题系统'}
+              {(menuItems.find((item) => item?.key === location.pathname) as any)?.label || '刷题系统'}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 16 }}>
