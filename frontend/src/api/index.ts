@@ -22,6 +22,11 @@ export const authApi = {
   getUserStats: () => {
     return api.get<ApiResponse<UserStats>>('/auth/stats');
   },
+
+  // 修改密码
+  changePassword: (data: { old_password: string; new_password: string }) => {
+    return api.post<ApiResponse<null>>('/auth/change-password', data);
+  },
 };
 
 // 题目相关 API

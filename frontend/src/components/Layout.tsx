@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Layout as AntLayout, Menu, Avatar, Dropdown, theme, Modal, message, Drawer, Switch } from 'antd';
+import { Layout as AntLayout, Menu, Avatar, Dropdown, theme, Modal, message, Drawer, Switch, Form, Input } from 'antd';
 import {
   BookOutlined,
   FileTextOutlined,
@@ -13,9 +13,11 @@ import {
   BookFilled,
   LineChartOutlined,
   ThunderboltOutlined,
+  KeyOutlined,
 } from '@ant-design/icons';
 import { useState, useEffect } from 'react';
 import type { MenuProps } from 'antd';
+import { authApi } from '../api';
 
 const { Header, Content, Sider } = AntLayout;
 
@@ -29,6 +31,8 @@ const Layout: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return document.documentElement.getAttribute('data-theme') === 'dark';
   });
+  const [changePasswordVisible, setChangePasswordVisible] = useState(false);
+  const [passwordForm] = Form.useForm();
   const {
     token: { colorBgContainer, colorBgLayout, borderRadiusLG },
   } = theme.useToken();
@@ -117,7 +121,27 @@ const Layout: React.FC = () => {
     message.success(checked ? '已切换到深色模式' : '已切换到浅色模式');
   };
 
+  const handleChangePassword = async (values: { old_password: string; new_password: string }) => {
+    try {
+      await authApi.changePassword(values);
+      message.success('密码修改成功');
+      setChangePasswordVisible(false);
+      passwordForm.resetFields();
+    } catch (error: any) {
+      // 错误已在 axios 拦截器中处理
+    }
+  };
+
   const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'changePassword',
+      icon: <KeyOutlined />,
+      label: '修改密码',
+      onClick: () => setChangePasswordVisible(true),
+    },
+    {
+      type: 'divider',
+    },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
@@ -295,6 +319,58 @@ const Layout: React.FC = () => {
           <Outlet />
         </Content>
       </AntLayout>
+
+      <Modal
+        title="修改密码"
+        open={changePasswordVisible}
+        onCancel={() => { setChangePasswordVisible(false); passwordForm.resetFields(); }}
+        onOk={() => passwordForm.submit()}
+        okText="确认修改"
+        cancelText="取消"
+      >
+        <Form
+          form={passwordForm}
+          layout="vertical"
+          onFinish={handleChangePassword}
+          style={{ marginTop: 16 }}
+        >
+          <Form.Item
+            name="old_password"
+            label="原密码"
+            rules={[{ required: true, message: '请输入原密码' }]}
+          >
+            <Input.Password placeholder="请输入原密码" />
+          </Form.Item>
+          <Form.Item
+            name="new_password"
+            label="新密码"
+            rules={[
+              { required: true, message: '请输入新密码' },
+              { min: 6, message: '密码至少 6 个字符' },
+            ]}
+          >
+            <Input.Password placeholder="请输入新密码" />
+          </Form.Item>
+          <Form.Item
+            name="confirm_password"
+            label="确认新密码"
+            dependencies={['new_password']}
+            rules={[
+              { required: true, message: '请确认新密码' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('new_password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('两次输入的密码不一致'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder="请再次输入新密码" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </AntLayout>
   );
 };

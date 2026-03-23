@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { ConfigProvider, theme, App as AntApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import QuestionList from './pages/QuestionList';
 import QuestionDetail from './pages/QuestionDetail';
 import AnswerRecord from './pages/AnswerRecord';
@@ -189,7 +188,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/register" element={<Navigate to="/login" replace />} />
             <Route path="/*" element={<Layout />}>
               <Route index element={<Navigate to="/questions" replace />} />
               <Route path="questions" element={<QuestionList />} />

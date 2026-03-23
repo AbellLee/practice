@@ -15,7 +15,7 @@ func SetupRoutes(r *gin.Engine) {
 		// 认证路由
 		auth := api.Group("/auth")
 		{
-			auth.POST("/register", controllers.Register)
+			// auth.POST("/register", controllers.Register) // 注册功能已禁用
 			auth.POST("/login", controllers.Login)
 			
 			// 需要认证的路由
@@ -24,6 +24,7 @@ func SetupRoutes(r *gin.Engine) {
 			{
 				authAuth.GET("/me", controllers.GetCurrentUser)
 				authAuth.GET("/stats", controllers.GetUserStats)
+				authAuth.POST("/change-password", controllers.ChangePassword)
 			}
 		}
 

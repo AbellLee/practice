@@ -1,5 +1,5 @@
 import { Form, Input, Button, Card, message, Typography } from 'antd';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { authApi } from '../api';
 import type { FormProps } from 'antd';
@@ -110,10 +110,7 @@ const Login: React.FC = () => {
             </Button>
           </Form.Item>
 
-          <div style={{ textAlign: 'center', fontSize: isMobile ? 13 : 14 }}>
-            <span>还没有账号？</span>
-            <Link to="/register" style={{ marginLeft: 4 }}>立即注册</Link>
-          </div>
+          {/* 注册功能已禁用 */}
         </Form>
       </Card>
     </div>
