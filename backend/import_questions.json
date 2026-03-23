@@ -1,157 +1,590 @@
 [
   {
-    "title": "Kubernetes Master 组件 - kube-apiserver 的角色",
-    "content": "关于 kube-apiserver 的描述，以下哪项是正确的？",
-    "type": "choice",
-    "options": ["负责将 Pod 调度到合适的节点", "集群的唯一入口和通信枢纽，所有操作必须通过它", "负责运行容器", "负责节点上的网络代理"],
-    "answer": "B",
-    "analysis": "kube-apiserver 是集群的唯一入口和通信枢纽，所有内部组件和外部用户都必须通过它来操作集群资源。调度是 kube-scheduler 的职责，运行容器是容器运行时的职责，网络代理是 kube-proxy 的职责。",
-    "difficulty": 1,
-    "category": "Kubernetes",
-    "tags": ["Kubernetes", "Master", "apiserver", "架构"]
-  },
-  {
-    "title": "Kubernetes - Etcd 的作用",
-    "content": "Etcd 在 Kubernetes 集群中扮演什么角色？",
-    "type": "choice",
-    "options": ["容器运行时", "网络代理", "集群的唯一可信数据源，分布式键值数据库", "调度器"],
-    "answer": "C",
-    "analysis": "Etcd 是集群的唯一可信数据源，是一个高可用的分布式键值数据库，存储了集群的所有关键数据如节点、Pod、配置、密钥、状态等信息。",
-    "difficulty": 1,
-    "category": "Kubernetes",
-    "tags": ["Kubernetes", "Etcd", "存储", "架构"]
-  },
-  {
-    "title": "Kubernetes - Etcd 的交互方式",
-    "content": "关于 Etcd 的交互方式，以下说法正确的是？",
-    "type": "choice",
-    "options": ["所有组件都可以直接操作 Etcd", "只有 kube-scheduler 可以直接操作 Etcd", "只有 API Server 可以直接操作 Etcd，其他组件不直接操作", "kubelet 可以直接操作 Etcd"],
-    "answer": "C",
-    "analysis": "Etcd 只与 API Server 直接交互，其他组件不直接操作 etcd，这保证了数据操作的一致性。",
+    "title": "Kubernetes - IPVS 适合大规模集群",
+    "content": "在 kube-proxy 的模式中，IPVS 模式适合大规模集群（数千个 Service 或 Pod）。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "IPVS 模式通过内核级别的负载均衡器实现，性能优于 iptables 模式，特别适合大规模集群场景。",
     "difficulty": 2,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "Etcd", "API Server", "架构"]
+    "tags": [
+      "Kubernetes",
+      "IPVS",
+      "kube-proxy",
+      "大规模集群"
+    ]
   },
   {
-    "title": "Kubernetes - Controller Manager 的职责",
-    "content": "Controller Manager 在 Kubernetes 中的作用是什么？",
+    "title": "Kubernetes - CNI 插件可以混用",
+    "content": "在同一个 Kubernetes 集群中，可以同时使用多个 CNI 插件（如同时使用 Flannel 和 Calico）。",
+    "type": "judge",
+    "options": [],
+    "answer": "false",
+    "analysis": "一个 Kubernetes 集群只能使用一个 CNI 插件，不能混用。不同的 CNI 插件可能会产生网络冲突。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "CNI",
+      "网络插件",
+      "集群配置"
+    ]
+  },
+  {
+    "title": "Kubernetes - NodePort 基于 ClusterIP 实现",
+    "content": "Kubernetes NodePort 类型的 Service 是基于 ClusterIP 实现的。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "NodePort 是在 ClusterIP 的基础上实现的，流量路径是：外部请求 → NodePort → ClusterIP → Pod。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "NodePort",
+      "ClusterIP"
+    ]
+  },
+  {
+    "title": "Kubernetes - ExternalName 创建 ClusterIP",
+    "content": "ExternalName 类型的 Service 会创建 ClusterIP 和 Endpoints。",
+    "type": "judge",
+    "options": [],
+    "answer": "false",
+    "analysis": "ExternalName 类型不创建 ClusterIP 和 Endpoints，它通过 DNS CNAME 记录直接映射到外部服务域名。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "ExternalName",
+      "ClusterIP"
+    ]
+  },
+  {
+    "title": "Kubernetes - Service 类型不需要负载均衡器",
+    "content": "ClusterIP 和 NodePort 类型的 Service 都不需要云提供商的负载均衡器。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "ClusterIP 和 NodePort 都不需要云负载均衡器。只有 LoadBalancer 类型需要云提供商的负载均衡器支持。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "负载均衡器"
+    ]
+  },
+  {
+    "title": "Kubernetes - Pod 网络模型原则",
+    "content": "Kubernetes 网络模型的核心设计原则是？",
     "type": "choice",
-    "options": ["集群的自动化运维中心，运行多种控制器确保集群状态向期望状态收敛", "负责节点上的容器管理", "负责集群的网络配置", "负责用户认证和授权"],
+    "options": [
+      "所有 Pod 必须通过 NAT 通信",
+      "所有 Pod 可以在不经过 NAT 的情况下互相通信",
+      "Pod 只能通过 Service 通信",
+      "Pod 不能跨节点通信"
+    ],
+    "answer": "B",
+    "analysis": "Kubernetes 网络模型的核心原则是所有 Pod 可以在不经过 NAT 的情况下互相通信，无论 Pod 在哪个节点上。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "网络模型",
+      "Pod",
+      "设计原则"
+    ]
+  },
+  {
+    "title": "Kubernetes - Flannel 的适用场景",
+    "content": "Flannel CNI 插件最适合什么场景？",
+    "type": "choice",
+    "options": [
+      "大规模生产集群",
+      "高性能要求的场景",
+      "小型集群、学习测试",
+      "跨集群通信"
+    ],
+    "answer": "C",
+    "analysis": "Flannel 简单易用，使用 Overlay 网络，适合小型集群和学习测试场景。大规模生产环境建议使用 Calico 或 Cilium。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Flannel",
+      "CNI",
+      "适用场景"
+    ]
+  },
+  {
+    "title": "Kubernetes - Cilium 的技术基础",
+    "content": "Cilium CNI 插件基于什么技术实现高性能网络？",
+    "type": "choice",
+    "options": [
+      "iptables",
+      "eBPF",
+      "IPVS",
+      "Open vSwitch"
+    ],
+    "answer": "B",
+    "analysis": "Cilium 基于 eBPF（扩展伯克利包过滤器）技术，在内核层面实现高性能网络处理，具有优秀的可观测性和安全性。",
+    "difficulty": 3,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Cilium",
+      "CNI",
+      "eBPF"
+    ]
+  },
+  {
+    "title": "Kubernetes - Calico 的特点",
+    "content": "关于 Calico CNI 插件，以下说法正确的是？",
+    "type": "choice",
+    "options": [
+      "只支持 Overlay 网络",
+      "基于 BGP 协议，支持网络策略",
+      "性能最低",
+      "不支持大规模集群"
+    ],
+    "answer": "B",
+    "analysis": "Calico 基于 BGP 协议，提供高性能的网络连接，支持网络策略（NetworkPolicy），适合生产环境和大规模集群。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Calico",
+      "CNI",
+      "BGP"
+    ]
+  },
+  {
+    "title": "Kubernetes - 主流 CNI 插件",
+    "content": "以下哪个不是 Kubernetes 的主流 CNI 网络插件？",
+    "type": "choice",
+    "options": [
+      "Flannel",
+      "Calico",
+      "Cilium",
+      "Docker Compose"
+    ],
+    "answer": "D",
+    "analysis": "Docker Compose 是容器编排工具，不是 CNI 插件。Flannel、Calico、Cilium 都是主流的 Kubernetes CNI 网络插件。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "CNI",
+      "网络插件"
+    ]
+  },
+  {
+    "title": "Kubernetes - 内部微服务通信的 Service 类型",
+    "content": "如果只需要在集群内部进行微服务之间的通信，应该选择哪种 Service 类型？",
+    "type": "choice",
+    "options": [
+      "ClusterIP",
+      "NodePort",
+      "LoadBalancer",
+      "ExternalName"
+    ],
     "answer": "A",
-    "analysis": "Controller Manager 是集群的自动化运维中心，内部运行着多种控制器，不断循环监听集群的当前状态，并确保其向期望状态收敛。",
+    "analysis": "ClusterIP 是最适合内部微服务通信的类型，它只在集群内部提供虚拟 IP，外部无法访问，安全性更好。",
     "difficulty": 1,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "Controller Manager", "控制器", "架构"]
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "ClusterIP",
+      "微服务"
+    ]
   },
   {
-    "title": "Kubernetes - Node Controller 的功能",
-    "content": "Node Controller 的主要职责是什么？",
+    "title": "Kubernetes - ExternalName 的实现方式",
+    "content": "Kubernetes ExternalName 类型的 Service 是通过什么方式实现外部服务映射的？",
     "type": "choice",
-    "options": ["管理节点上的容器", "监控节点状态，当节点宕机时负责响应", "调度 Pod 到节点", "管理网络规则"],
+    "options": [
+      "iptables 规则",
+      "DNS CNAME 记录",
+      "IPVS 规则",
+      "NodePort 转发"
+    ],
     "answer": "B",
-    "analysis": "Node Controller 是 Controller Manager 中的一种控制器，负责监控节点状态，当节点宕机时负责响应。",
+    "analysis": "ExternalName 通过 DNS CNAME 记录将 Service 名称映射到外部服务的域名，不创建 ClusterIP 或 Endpoints。",
     "difficulty": 2,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "Node Controller", "节点管理"]
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "ExternalName",
+      "DNS"
+    ]
   },
   {
-    "title": "Kubernetes - kube-scheduler 的工作流程",
-    "content": "kube-scheduler 调度 Pod 的正确工作流程是？",
+    "title": "Kubernetes - LoadBalancer 自动创建的资源",
+    "content": "创建 LoadBalancer 类型的 Service 时，Kubernetes 会自动创建哪些资源？",
     "type": "choice",
-    "options": ["Binding → Filtering → Scoring", "Scoring → Filtering → Binding", "Filtering → Scoring → Binding", "Filtering → Binding → Scoring"],
+    "options": [
+      "只创建 LoadBalancer",
+      "自动创建 NodePort 和 ClusterIP",
+      "只创建 ClusterIP",
+      "只创建 ExternalName"
+    ],
+    "answer": "B",
+    "analysis": "创建 LoadBalancer 类型时，Kubernetes 会自动创建 NodePort 和 ClusterIP，形成完整的访问链路：外部 IP → NodePort → ClusterIP → Pod。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "LoadBalancer",
+      "自动创建"
+    ]
+  },
+  {
+    "title": "Kubernetes - NodePort 的访问 URL",
+    "content": "如果一个 NodePort Service 的 nodePort 是 30080，节点 IP 是 192.168.1.100，外部访问 URL 是？",
+    "type": "choice",
+    "options": [
+      "http://192.168.1.100:80",
+      "http://192.168.1.100:30080",
+      "http://192.168.1.100",
+      "http://192.168.1.100:8080"
+    ],
+    "answer": "B",
+    "analysis": "NodePort 类型通过 节点 IP:NodePort 访问，所以 URL 是 http://192.168.1.100:30080",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "NodePort",
+      "访问方式"
+    ]
+  },
+  {
+    "title": "Kubernetes - Service 类型访问方式对比",
+    "content": "如果需要在生产环境中对外提供服务，且有云负载均衡器，应该选择哪种 Service 类型？",
+    "type": "choice",
+    "options": [
+      "ClusterIP",
+      "NodePort",
+      "LoadBalancer",
+      "ExternalName"
+    ],
     "answer": "C",
-    "analysis": "kube-scheduler 的工作流程是：1) Filtering：排除不满足 Pod 资源需求的节点；2) Scoring：对通过的节点进行优先级排序；3) Binding：将 Pod 绑定到得分最高的节点。",
-    "difficulty": 2,
-    "category": "Kubernetes",
-    "tags": ["Kubernetes", "scheduler", "调度", "工作流程"]
-  },
-  {
-    "title": "Kubernetes - kube-scheduler 的 Filtering 阶段",
-    "content": "在 kube-scheduler 的 Filtering 阶段，主要做什么？",
-    "type": "choice",
-    "options": ["对节点进行优先级排序", "排除不满足 Pod 资源需求的节点（如内存不足、CPU 不够）", "将 Pod 绑定到节点", "将信息写入 etcd"],
-    "answer": "B",
-    "analysis": "Filtering 阶段负责排除不满足 Pod 资源需求的节点，如内存不足、CPU 不够的节点会被排除。",
-    "difficulty": 2,
-    "category": "Kubernetes",
-    "tags": ["Kubernetes", "scheduler", "Filtering", "调度"]
-  },
-  {
-    "title": "Kubernetes - kubelet 的角色",
-    "content": "kubelet 在 Kubernetes 集群中的角色是什么？",
-    "type": "choice",
-    "options": ["集群的调度专家", "节点上的代理，管理本节点上 Pod 的生命周期", "集群的唯一入口", "网络负载均衡器"],
-    "answer": "B",
-    "analysis": "kubelet 是节点上的'节点代理'或'现场监工'，负责与 API Server 通信、管理本节点上 Pod 的生命周期、启动容器、执行健康检查、汇报节点状态。",
+    "analysis": "LoadBalancer 类型最适合生产环境对外服务，它使用云提供商的负载均衡器，提供高可用的外部访问入口。",
     "difficulty": 1,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "kubelet", "Node", "架构"]
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "LoadBalancer",
+      "生产环境"
+    ]
   },
   {
-    "title": "Kubernetes - kubelet 的职责",
-    "content": "以下哪项不是 kubelet 的职责？",
+    "title": "Kubernetes - ExternalName 的用途",
+    "content": "Kubernetes ExternalName 类型的 Service 主要用于什么场景？",
     "type": "choice",
-    "options": ["与 API Server 保持通信，接收指令", "管理本节点上 Pod 的生命周期", "将 Pod 调度到合适的节点", "定期向 Master 汇报本节点的状态"],
+    "options": [
+      "暴露集群内部服务",
+      "访问集群外部的服务",
+      "负载均衡",
+      "服务发现"
+    ],
+    "answer": "B",
+    "analysis": "ExternalName 类型通过 DNS CNAME 记录映射到外部服务，用于访问集群外的服务（如外部数据库 RDS、外部 API 等）。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "ExternalName",
+      "外部服务"
+    ]
+  },
+  {
+    "title": "Kubernetes - LoadBalancer 的特点",
+    "content": "关于 Kubernetes LoadBalancer 类型的 Service，以下说法正确的是？",
+    "type": "choice",
+    "options": [
+      "只能在自建集群中使用",
+      "需要云提供商的负载均衡器支持",
+      "不能分配外部 IP",
+      "只能用于内部服务通信"
+    ],
+    "answer": "B",
+    "analysis": "LoadBalancer 类型使用云提供商的负载均衡器（如 AWS ELB、阿里云 SLB），会分配一个外部 IP，适用于生产环境对外服务。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "LoadBalancer",
+      "云"
+    ]
+  },
+  {
+    "title": "Kubernetes - NodePort 端口范围",
+    "content": "Kubernetes NodePort 类型的 Service 可以在哪个端口范围内开放？",
+    "type": "choice",
+    "options": [
+      "80-8080",
+      "1024-65535",
+      "30000-32767",
+      "1-1023"
+    ],
     "answer": "C",
-    "analysis": "将 Pod 调度到合适的节点是 kube-scheduler 的职责，不是 kubelet 的职责。kubelet 负责执行调度结果，管理本节点上的 Pod。",
+    "analysis": "NodePort 类型的 Service 在每个节点上开放一个端口，端口范围是 30000-32767。外部可以通过 节点 IP:NodePort 访问服务。",
     "difficulty": 2,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "kubelet", "职责"]
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "NodePort",
+      "端口"
+    ]
   },
   {
-    "title": "Kubernetes - kube-proxy 的作用",
-    "content": "kube-proxy 在 Kubernetes 中的作用是什么？",
+    "title": "Kubernetes - ClusterIP 的访问范围",
+    "content": "Kubernetes ClusterIP 类型的 Service 可以在哪里被访问？",
     "type": "choice",
-    "options": ["管理容器运行时", "节点上的网络代理和负载均衡器，实现 Service 的服务发现和负载均衡", "调度 Pod 到节点", "存储集群数据"],
-    "answer": "B",
-    "analysis": "kube-proxy 是节点上的网络代理和负载均衡器，维护节点上的网络规则（如 iptables 或 IPVS 规则），实现了 Kubernetes Service 的抽象，将流量转发到后端真实的 Pod IP 上。",
-    "difficulty": 1,
-    "category": "Kubernetes",
-    "tags": ["Kubernetes", "kube-proxy", "网络", "Service"]
-  },
-  {
-    "title": "Kubernetes - Container Runtime 的接口",
-    "content": "Kubernetes 通过什么标准接口调用容器运行时？",
-    "type": "choice",
-    "options": ["CRI (Container Runtime Interface)", "CSI (Container Storage Interface)", "CNI (Container Network Interface)", "Kubelet API"],
+    "options": [
+      "只能在集群内部访问",
+      "可以在集群内外都访问",
+      "只能在集群外部访问",
+      "只能通过 Ingress 访问"
+    ],
     "answer": "A",
-    "analysis": "Kubernetes 本身并不直接创建容器，而是通过 CRI (Container Runtime Interface) 标准接口调用容器运行时来完成。",
-    "difficulty": 2,
-    "category": "Kubernetes",
-    "tags": ["Kubernetes", "CRI", "容器运行时"]
-  },
-  {
-    "title": "Kubernetes - kube-apiserver 的特性",
-    "content": "kube-apiserver 是无状态的，这意味着它可以轻松水平扩展。",
-    "type": "judge",
-    "options": [],
-    "answer": "true",
-    "analysis": "kube-apiserver 是无状态的，所有操作都会经过身份验证、授权和审计，这使得它可以轻松水平扩展以应对高并发请求。",
+    "analysis": "ClusterIP 类型的 Service 只能在集群内部访问，外部无法直接访问。它适用于内部微服务之间的通信。",
     "difficulty": 1,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "apiserver", "无状态", "扩展"]
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "ClusterIP",
+      "访问范围"
+    ]
   },
   {
-    "title": "Kubernetes - Etcd 的部署方式",
-    "content": "在生产环境中，Etcd 通常独立于 Kubernetes 集群部署以保证安全性和性能。",
-    "type": "judge",
-    "options": [],
-    "answer": "true",
-    "analysis": "Etcd 可以独立于 Kubernetes 集群部署，生产环境通常如此以保证安全性和性能。",
-    "difficulty": 2,
-    "category": "Kubernetes",
-    "tags": ["Kubernetes", "Etcd", "部署", "生产环境"]
-  },
-  {
-    "title": "Kubernetes - Replication Controller 的作用",
-    "content": "Replication Controller 确保 Pod 的副本数（Replicas）始终符合用户定义的数量。",
-    "type": "judge",
-    "options": [],
-    "answer": "true",
-    "analysis": "Replication Controller 是 Controller Manager 中的一种控制器，负责确保 Pod 的副本数始终符合用户定义的数量。",
+    "title": "Kubernetes - Service 默认类型",
+    "content": "在 Kubernetes 中，创建 Service 时如果不指定 type 字段，默认会使用哪种类型？",
+    "type": "choice",
+    "options": [
+      "NodePort",
+      "LoadBalancer",
+      "ClusterIP",
+      "ExternalName"
+    ],
+    "answer": "C",
+    "analysis": "ClusterIP 是 Kubernetes Service 的默认类型，它会在集群内部创建一个虚拟 IP，只能在集群内部访问，外部无法直接访问。",
     "difficulty": 1,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "Replication Controller", "副本"]
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "ClusterIP",
+      "网络"
+    ]
+  },
+  {
+    "title": "Kubernetes - IPVS 模式性能",
+    "content": "在 kube-proxy 的三种模式中，IPVS 模式的性能最高，适合大规模集群。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "IPVS 模式通过内核级别的负载均衡器实现流量转发，性能优于 iptables 模式，特别适合大规模集群（数千个 Service 或 Pod）的场景。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "IPVS",
+      "kube-proxy",
+      "性能"
+    ]
+  },
+  {
+    "title": "Kubernetes - Endpoints 的自动创建",
+    "content": "在 Kubernetes 中，Endpoints 对象是由系统自动创建的，用户不需要手动创建。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "当创建 Service 时，如果 Service 定义了 selector，Kubernetes 会自动创建对应的 Endpoints 对象，并持续维护其中的 Pod IP 列表。用户通常不需要手动创建 Endpoints。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Endpoints",
+      "自动创建"
+    ]
+  },
+  {
+    "title": "Kubernetes - Service 的虚拟 IP",
+    "content": "Kubernetes Service 的 ClusterIP 是一个虚拟 IP，集群内的其他 Pod 可以通过这个 IP 访问 Service 后端的 Pod。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "Service 会分配一个稳定的虚拟 IP（ClusterIP），集群内的其他 Pod 可以通过这个 IP 访问后端服务。kube-proxy 负责将流量转发到实际的后端 Pod。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "ClusterIP",
+      "服务发现"
+    ]
+  },
+  {
+    "title": "Kubernetes - Service 标签选择器更新机制",
+    "content": "当后端 Pod 发生扩容或缩容时，Kubernetes Service 会如何响应？",
+    "type": "choice",
+    "options": [
+      "需要手动更新 Service 配置",
+      "需要重启 Service",
+      "自动更新 Endpoints，无需手动干预",
+      "需要删除并重新创建 Service"
+    ],
+    "answer": "C",
+    "analysis": "当后端 Pod 发生扩容或缩容时，Kubernetes 会自动更新 Endpoints 对象，Service 会立即感知到变化并调整负载均衡列表，无需任何手动干预。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "Endpoints",
+      "自动更新"
+    ]
+  },
+  {
+    "title": "Kubernetes - 查看 Service 绑定的 Pod IP",
+    "content": "在 Kubernetes 中，使用哪个命令可以查看 Service 实际绑定的 Pod IP 列表？",
+    "type": "choice",
+    "options": [
+      "kubectl get svc",
+      "kubectl get endpoints",
+      "kubectl get pods",
+      "kubectl describe service"
+    ],
+    "answer": "B",
+    "analysis": "使用 `kubectl get endpoints <service-name>` 可以查看 Service 实际绑定的 Pod IP 列表。Endpoints 对象存储了所有匹配 Service 的 Pod IP 地址。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Endpoints",
+      "kubectl",
+      "运维命令"
+    ]
+  },
+  {
+    "title": "Kubernetes - Service 与 Pod 的关联关系",
+    "content": "Kubernetes Service 与 Pod 的关联关系是？",
+    "type": "choice",
+    "options": [
+      "一对一绑定",
+      "一对多动态关联",
+      "多对一静态绑定",
+      "多对多固定映射"
+    ],
+    "answer": "B",
+    "analysis": "Service 与 Pod 是一对多动态关联关系。一个 Service 可以关联多个具有相同标签的 Pod，当 Pod 变化时（扩容、缩容、重启），关联关系会自动更新。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "Pod",
+      "动态关联"
+    ]
+  },
+  {
+    "title": "Kubernetes - Service 流量转发模式",
+    "content": "以下哪种不是 kube-proxy 支持的 Service 流量转发模式？",
+    "type": "choice",
+    "options": [
+      "iptables",
+      "IPVS",
+      "userspace",
+      "BGP"
+    ],
+    "answer": "D",
+    "analysis": "kube-proxy 支持三种模式：iptables（通过 iptables 规则转发）、IPVS（通过内核负载均衡器转发，性能最高）、userspace（用户态代理，已废弃）。BGP 不是 kube-proxy 的模式。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "kube-proxy",
+      "iptables",
+      "IPVS"
+    ]
+  },
+  {
+    "title": "Kubernetes - kube-proxy 的功能",
+    "content": "kube-proxy 在 Kubernetes Service 中扮演什么角色？",
+    "type": "choice",
+    "options": [
+      "管理 Pod 的生命周期",
+      "维护节点上的网络规则，实现 Service 的负载均衡和流量转发",
+      "调度 Pod 到合适的节点",
+      "存储集群的配置信息"
+    ],
+    "answer": "B",
+    "analysis": "kube-proxy 是节点上的网络代理，维护节点上的网络规则（iptables 或 IPVS），将访问 Service 虚拟 IP 的流量转发到后端真实的 Pod IP 上，实现负载均衡。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "kube-proxy",
+      "Service",
+      "网络"
+    ]
+  },
+  {
+    "title": "Kubernetes - Endpoints 的作用",
+    "content": "在 Kubernetes 中，Endpoints 对象的作用是什么？",
+    "type": "choice",
+    "options": [
+      "存储 Service 的配置信息",
+      "存储所有匹配 Service 的 Pod IP 地址列表",
+      "存储 Pod 的资源限制",
+      "存储容器的启动参数"
+    ],
+    "answer": "B",
+    "analysis": "Endpoints 是 Service 和 Pod 之间的桥梁，存储所有匹配 Service 的 Pod IP 地址列表。当 Pod 变化时（扩容、缩容、重启），Endpoints 会自动更新。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Endpoints",
+      "Service",
+      "负载均衡"
+    ]
+  },
+  {
+    "title": "Kubernetes - Service 如何关联 Pod",
+    "content": "Kubernetes 中，Service 是通过什么方式关联到后端 Pod 的？",
+    "type": "choice",
+    "options": [
+      "直接绑定 Pod 的 IP 地址",
+      "通过标签选择器（Label Selector）动态匹配",
+      "通过 Pod 名称精确匹配",
+      "通过命名空间隔离"
+    ],
+    "answer": "B",
+    "analysis": "Service 通过标签选择器（Label Selector）动态关联一组 Pod，而不是直接绑定具体 IP。当 Pod 变化时，Service 会自动更新关联的 Pod 列表，无需手动干预。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Service",
+      "标签选择器",
+      "服务发现"
+    ]
   },
   {
     "title": "Kubernetes - kube-proxy 实现 Service 的方式",
@@ -162,6 +595,336 @@
     "analysis": "kube-proxy 维护节点上的网络规则（如 iptables 或 IPVS 规则），当访问一个 Service 的虚拟 IP 时，正是 kube-proxy 的规则将流量转发到后端真实的 Pod IP 上，从而实现服务发现和负载均衡。",
     "difficulty": 2,
     "category": "Kubernetes",
-    "tags": ["Kubernetes", "kube-proxy", "Service", "iptables", "IPVS"]
+    "tags": [
+      "Kubernetes",
+      "kube-proxy",
+      "Service",
+      "iptables",
+      "IPVS"
+    ]
+  },
+  {
+    "title": "Kubernetes - Replication Controller 的作用",
+    "content": "Replication Controller 确保 Pod 的副本数（Replicas）始终符合用户定义的数量。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "Replication Controller 是 Controller Manager 中的一种控制器，负责确保 Pod 的副本数始终符合用户定义的数量。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Replication Controller",
+      "副本"
+    ]
+  },
+  {
+    "title": "Kubernetes - Etcd 的部署方式",
+    "content": "在生产环境中，Etcd 通常独立于 Kubernetes 集群部署以保证安全性和性能。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "Etcd 可以独立于 Kubernetes 集群部署，生产环境通常如此以保证安全性和性能。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Etcd",
+      "部署",
+      "生产环境"
+    ]
+  },
+  {
+    "title": "Kubernetes - kube-apiserver 的特性",
+    "content": "kube-apiserver 是无状态的，这意味着它可以轻松水平扩展。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "kube-apiserver 是无状态的，所有操作都会经过身份验证、授权和审计，这使得它可以轻松水平扩展以应对高并发请求。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "apiserver",
+      "无状态",
+      "扩展"
+    ]
+  },
+  {
+    "title": "Kubernetes - Container Runtime 的接口",
+    "content": "Kubernetes 通过什么标准接口调用容器运行时？",
+    "type": "choice",
+    "options": [
+      "CRI (Container Runtime Interface)",
+      "CSI (Container Storage Interface)",
+      "CNI (Container Network Interface)",
+      "Kubelet API"
+    ],
+    "answer": "A",
+    "analysis": "Kubernetes 本身并不直接创建容器，而是通过 CRI (Container Runtime Interface) 标准接口调用容器运行时来完成。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "CRI",
+      "容器运行时"
+    ]
+  },
+  {
+    "title": "Kubernetes - kube-proxy 的作用",
+    "content": "kube-proxy 在 Kubernetes 中的作用是什么？",
+    "type": "choice",
+    "options": [
+      "管理容器运行时",
+      "节点上的网络代理和负载均衡器，实现 Service 的服务发现和负载均衡",
+      "调度 Pod 到节点",
+      "存储集群数据"
+    ],
+    "answer": "B",
+    "analysis": "kube-proxy 是节点上的网络代理和负载均衡器，维护节点上的网络规则（如 iptables 或 IPVS 规则），实现了 Kubernetes Service 的抽象，将流量转发到后端真实的 Pod IP 上。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "kube-proxy",
+      "网络",
+      "Service"
+    ]
+  },
+  {
+    "title": "Kubernetes - kubelet 的职责",
+    "content": "以下哪项不是 kubelet 的职责？",
+    "type": "choice",
+    "options": [
+      "与 API Server 保持通信，接收指令",
+      "管理本节点上 Pod 的生命周期",
+      "将 Pod 调度到合适的节点",
+      "定期向 Master 汇报本节点的状态"
+    ],
+    "answer": "C",
+    "analysis": "将 Pod 调度到合适的节点是 kube-scheduler 的职责，不是 kubelet 的职责。kubelet 负责执行调度结果，管理本节点上的 Pod。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "kubelet",
+      "职责"
+    ]
+  },
+  {
+    "title": "Kubernetes - kubelet 的角色",
+    "content": "kubelet 在 Kubernetes 集群中的角色是什么？",
+    "type": "choice",
+    "options": [
+      "集群的调度专家",
+      "节点上的代理，管理本节点上 Pod 的生命周期",
+      "集群的唯一入口",
+      "网络负载均衡器"
+    ],
+    "answer": "B",
+    "analysis": "kubelet 是节点上的'节点代理'或'现场监工'，负责与 API Server 通信、管理本节点上 Pod 的生命周期、启动容器、执行健康检查、汇报节点状态。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "kubelet",
+      "Node",
+      "架构"
+    ]
+  },
+  {
+    "title": "Kubernetes - kube-scheduler 的 Filtering 阶段",
+    "content": "在 kube-scheduler 的 Filtering 阶段，主要做什么？",
+    "type": "choice",
+    "options": [
+      "对节点进行优先级排序",
+      "排除不满足 Pod 资源需求的节点（如内存不足、CPU 不够）",
+      "将 Pod 绑定到节点",
+      "将信息写入 etcd"
+    ],
+    "answer": "B",
+    "analysis": "Filtering 阶段负责排除不满足 Pod 资源需求的节点，如内存不足、CPU 不够的节点会被排除。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "scheduler",
+      "Filtering",
+      "调度"
+    ]
+  },
+  {
+    "title": "Kubernetes - kube-scheduler 的工作流程",
+    "content": "kube-scheduler 调度 Pod 的正确工作流程是？",
+    "type": "choice",
+    "options": [
+      "Binding → Filtering → Scoring",
+      "Scoring → Filtering → Binding",
+      "Filtering → Scoring → Binding",
+      "Filtering → Binding → Scoring"
+    ],
+    "answer": "C",
+    "analysis": "kube-scheduler 的工作流程是：1) Filtering：排除不满足 Pod 资源需求的节点；2) Scoring：对通过的节点进行优先级排序；3) Binding：将 Pod 绑定到得分最高的节点。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "scheduler",
+      "调度",
+      "工作流程"
+    ]
+  },
+  {
+    "title": "Kubernetes - Node Controller 的功能",
+    "content": "Node Controller 的主要职责是什么？",
+    "type": "choice",
+    "options": [
+      "管理节点上的容器",
+      "监控节点状态，当节点宕机时负责响应",
+      "调度 Pod 到节点",
+      "管理网络规则"
+    ],
+    "answer": "B",
+    "analysis": "Node Controller 是 Controller Manager 中的一种控制器，负责监控节点状态，当节点宕机时负责响应。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Node Controller",
+      "节点管理"
+    ]
+  },
+  {
+    "title": "Kubernetes - Controller Manager 的职责",
+    "content": "Controller Manager 在 Kubernetes 中的作用是什么？",
+    "type": "choice",
+    "options": [
+      "集群的自动化运维中心，运行多种控制器确保集群状态向期望状态收敛",
+      "负责节点上的容器管理",
+      "负责集群的网络配置",
+      "负责用户认证和授权"
+    ],
+    "answer": "A",
+    "analysis": "Controller Manager 是集群的自动化运维中心，内部运行着多种控制器，不断循环监听集群的当前状态，并确保其向期望状态收敛。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Controller Manager",
+      "控制器",
+      "架构"
+    ]
+  },
+  {
+    "title": "Kubernetes - Etcd 的交互方式",
+    "content": "关于 Etcd 的交互方式，以下说法正确的是？",
+    "type": "choice",
+    "options": [
+      "所有组件都可以直接操作 Etcd",
+      "只有 kube-scheduler 可以直接操作 Etcd",
+      "只有 API Server 可以直接操作 Etcd，其他组件不直接操作",
+      "kubelet 可以直接操作 Etcd"
+    ],
+    "answer": "C",
+    "analysis": "Etcd 只与 API Server 直接交互，其他组件不直接操作 etcd，这保证了数据操作的一致性。",
+    "difficulty": 2,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Etcd",
+      "API Server",
+      "架构"
+    ]
+  },
+  {
+    "title": "Kubernetes - Etcd 的作用",
+    "content": "Etcd 在 Kubernetes 集群中扮演什么角色？",
+    "type": "choice",
+    "options": [
+      "容器运行时",
+      "网络代理",
+      "集群的唯一可信数据源，分布式键值数据库",
+      "调度器"
+    ],
+    "answer": "C",
+    "analysis": "Etcd 是集群的唯一可信数据源，是一个高可用的分布式键值数据库，存储了集群的所有关键数据如节点、Pod、配置、密钥、状态等信息。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Etcd",
+      "存储",
+      "架构"
+    ]
+  },
+  {
+    "title": "Kubernetes Master 组件 - kube-apiserver 的角色",
+    "content": "关于 kube-apiserver 的描述，以下哪项是正确的？",
+    "type": "choice",
+    "options": [
+      "负责将 Pod 调度到合适的节点",
+      "集群的唯一入口和通信枢纽，所有操作必须通过它",
+      "负责运行容器",
+      "负责节点上的网络代理"
+    ],
+    "answer": "B",
+    "analysis": "kube-apiserver 是集群的唯一入口和通信枢纽，所有内部组件和外部用户都必须通过它来操作集群资源。调度是 kube-scheduler 的职责，运行容器是容器运行时的职责，网络代理是 kube-proxy 的职责。",
+    "difficulty": 1,
+    "category": "Kubernetes",
+    "tags": [
+      "Kubernetes",
+      "Master",
+      "apiserver",
+      "架构"
+    ]
+  },
+  {
+    "title": "Go 语言 - 错误处理",
+    "content": "Go 语言中，错误处理通常使用 if err != nil 的方式。",
+    "type": "judge",
+    "options": [],
+    "answer": "true",
+    "analysis": "Go 语言采用显式错误处理，通过检查 error 返回值来处理错误",
+    "difficulty": 1,
+    "category": "Go 基础",
+    "tags": [
+      "错误处理"
+    ]
+  },
+  {
+    "title": "Go 语言 - 切片操作",
+    "content": "切片的长度可以使用哪个内置函数获取？",
+    "type": "choice",
+    "options": [
+      "size()",
+      "count()",
+      "len()",
+      "length()"
+    ],
+    "answer": "C",
+    "analysis": "Go 语言使用 len() 函数获取切片、数组、字符串等的长度",
+    "difficulty": 1,
+    "category": "Go 基础",
+    "tags": [
+      "切片，基础"
+    ]
+  },
+  {
+    "title": "Go 语言基础 - 变量声明",
+    "content": "以下哪个是正确的 Go 语言变量声明方式？",
+    "type": "choice",
+    "options": [
+      "var x int = 5",
+      "int x = 5",
+      "x : int = 5",
+      "declare x int = 5"
+    ],
+    "answer": "A",
+    "analysis": "Go 语言使用 var 关键字声明变量，格式为 var 变量名 类型 = 值",
+    "difficulty": 1,
+    "category": "Go 基础",
+    "tags": [
+      "变量，基础"
+    ]
   }
 ]
