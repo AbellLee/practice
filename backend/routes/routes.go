@@ -40,6 +40,8 @@ func SetupRoutes(r *gin.Engine) {
 			questionsAuth.Use(middleware.JWTMiddleware())
 			{
 				questionsAuth.POST("", controllers.CreateQuestion)
+				questionsAuth.POST("/import", controllers.ImportQuestions)
+				questionsAuth.POST("/import-file", controllers.ImportQuestionsFromFile)
 				questionsAuth.PUT("/:id", controllers.UpdateQuestion)
 				questionsAuth.DELETE("/:id", controllers.DeleteQuestion)
 			}

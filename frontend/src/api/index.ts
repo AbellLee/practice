@@ -67,6 +67,11 @@ export const questionApi = {
   getTags: () => {
     return api.get<ApiResponse<string[]>>('/questions/tags');
   },
+
+  // 批量导入题目
+  importQuestions: (questions: Partial<Question>[]) => {
+    return api.post<ApiResponse<{ imported: number; skipped: number; failed: number; errors: string[] }>>('/questions/import', { questions });
+  },
 };
 
 // 答题相关 API

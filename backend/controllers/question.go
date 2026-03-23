@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"practice-system/models"
 	"strconv"
 	"strings"
@@ -268,5 +270,178 @@ func GetTags(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": tagList,
+	})
+}
+
+// ImportQuestions 批量导入题目
+func ImportQuestions(c *gin.Context) {
+	var req struct {
+		Questions []struct {
+			Title      string   `json:"title" binding:"required"`
+			Content    string   `json:"content"`
+			Type       string   `json:"type" binding:"required,oneof=choice judge"`
+			Options    []string `json:"options"`
+			Answer     string   `json:"answer" binding:"required"`
+			Analysis   string   `json:"analysis"`
+			Difficulty int      `json:"difficulty" binding:"required,min=1,max=5"`
+			Category   string   `json:"category"`
+			Tags       []string `json:"tags"`
+		} `json:"questions" binding:"required,min=1"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": fmt.Sprintf("数据格式错误: %s", err.Error()),
+		})
+		return
+	}
+
+	imported := 0
+	skipped := 0
+	errors := []string{}
+
+	for i, q := range req.Questions {
+		// 去重检查
+		var existing models.Question
+		if err := models.GetDB().Where("title = ?", q.Title).First(&existing).Error; err == nil {
+			skipped++
+			continue
+		}
+
+		var optionsJSON string
+		if len(q.Options) > 0 {
+			optionsBytes, _ := json.Marshal(q.Options)
+			optionsJSON = string(optionsBytes)
+		}
+
+		question := models.Question{
+			Title:      q.Title,
+			Content:    q.Content,
+			Type:       q.Type,
+			Options:    optionsJSON,
+			Answer:     q.Answer,
+			Analysis:   q.Analysis,
+			Difficulty: q.Difficulty,
+			Category:   q.Category,
+			Tags:       strings.Join(q.Tags, ","),
+		}
+
+		if err := models.GetDB().Create(&question).Error; err != nil {
+			errors = append(errors, fmt.Sprintf("第 %d 题导入失败: %s", i+1, err.Error()))
+			continue
+		}
+		imported++
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": fmt.Sprintf("导入完成：成功 %d 题，跳过 %d 题（已存在），失败 %d 题", imported, skipped, len(errors)),
+		"data": gin.H{
+			"imported": imported,
+			"skipped":  skipped,
+			"failed":   len(errors),
+			"errors":   errors,
+		},
+	})
+}
+
+// ImportQuestionsFromFile 从 JSON 文件导入题目
+func ImportQuestionsFromFile(c *gin.Context) {
+	var req struct {
+		FilePath string `json:"file_path" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "请提供文件路径 file_path",
+		})
+		return
+	}
+
+	data, err := os.ReadFile(req.FilePath)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": fmt.Sprintf("读取文件失败: %s", err.Error()),
+		})
+		return
+	}
+
+	var questions []struct {
+		Title      string   `json:"title"`
+		Content    string   `json:"content"`
+		Type       string   `json:"type"`
+		Options    []string `json:"options"`
+		Answer     string   `json:"answer"`
+		Analysis   string   `json:"analysis"`
+		Difficulty int      `json:"difficulty"`
+		Category   string   `json:"category"`
+		Tags       []string `json:"tags"`
+	}
+
+	if err := json.Unmarshal(data, &questions); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": fmt.Sprintf("JSON 解析失败: %s", err.Error()),
+		})
+		return
+	}
+
+	imported := 0
+	skipped := 0
+	errors := []string{}
+
+	for i, q := range questions {
+		if q.Title == "" || q.Type == "" || q.Answer == "" || q.Difficulty < 1 || q.Difficulty > 5 {
+			errors = append(errors, fmt.Sprintf("第 %d 题数据不完整，跳过", i+1))
+			continue
+		}
+		if q.Type != "choice" && q.Type != "judge" {
+			errors = append(errors, fmt.Sprintf("第 %d 题题型无效: %s", i+1, q.Type))
+			continue
+		}
+
+		var existing models.Question
+		if err := models.GetDB().Where("title = ?", q.Title).First(&existing).Error; err == nil {
+			skipped++
+			continue
+		}
+
+		var optionsJSON string
+		if len(q.Options) > 0 {
+			optionsBytes, _ := json.Marshal(q.Options)
+			optionsJSON = string(optionsBytes)
+		}
+
+		question := models.Question{
+			Title:      q.Title,
+			Content:    q.Content,
+			Type:       q.Type,
+			Options:    optionsJSON,
+			Answer:     q.Answer,
+			Analysis:   q.Analysis,
+			Difficulty: q.Difficulty,
+			Category:   q.Category,
+			Tags:       strings.Join(q.Tags, ","),
+		}
+
+		if err := models.GetDB().Create(&question).Error; err != nil {
+			errors = append(errors, fmt.Sprintf("第 %d 题导入失败: %s", i+1, err.Error()))
+			continue
+		}
+		imported++
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": fmt.Sprintf("文件导入完成：成功 %d 题，跳过 %d 题（已存在），失败 %d 题", imported, skipped, len(errors)),
+		"data": gin.H{
+			"imported": imported,
+			"skipped":  skipped,
+			"failed":   len(errors),
+			"errors":   errors,
+		},
 	})
 }

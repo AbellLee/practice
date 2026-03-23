@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, InputNumber, Space, Tag, message, Popconfirm } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ImportOutlined } from '@ant-design/icons';
 import { questionApi } from '../api';
 import type { Question } from '../types';
 import type { ColumnsType } from 'antd/es/table';
@@ -15,6 +15,9 @@ const QuestionManage: React.FC = () => {
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [form] = Form.useForm();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [importJson, setImportJson] = useState('');
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -87,6 +90,45 @@ const QuestionManage: React.FC = () => {
       loadQuestions();
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!importJson.trim()) {
+      message.error('请输入 JSON 数据');
+      return;
+    }
+    let questions: Partial<Question>[];
+    try {
+      const parsed = JSON.parse(importJson);
+      questions = Array.isArray(parsed) ? parsed : parsed.questions;
+      if (!Array.isArray(questions) || questions.length === 0) {
+        message.error('JSON 格式错误：需要题目数组');
+        return;
+      }
+    } catch {
+      message.error('JSON 解析失败，请检查格式');
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const res = await questionApi.importQuestions(questions);
+      if (res.data) {
+        const data = res.data as { imported: number; skipped: number; failed: number; errors: string[] };
+        message.success(`导入完成：成功 ${data.imported} 题，跳过 ${data.skipped} 题，失败 ${data.failed} 题`);
+        if (data.errors && data.errors.length > 0) {
+          Modal.warning({ title: '部分导入失败', content: data.errors.join('\n') });
+        }
+      }
+      setImportModalVisible(false);
+      setImportJson('');
+      loadQuestions();
+    } catch (error) {
+      console.error(error);
+      message.error('导入请求失败');
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -172,15 +214,21 @@ const QuestionManage: React.FC = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <Button 
           type="primary" 
           icon={<PlusOutlined />} 
           onClick={handleAdd}
-          block={isMobile}
           size={isMobile ? 'large' : 'middle'}
         >
-          {isMobile ? '新增题目' : null}
+          新增题目
+        </Button>
+        <Button
+          icon={<ImportOutlined />}
+          onClick={() => setImportModalVisible(true)}
+          size={isMobile ? 'large' : 'middle'}
+        >
+          批量导入
         </Button>
       </div>
 
@@ -308,6 +356,44 @@ const QuestionManage: React.FC = () => {
             />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="批量导入题目"
+        open={importModalVisible}
+        onOk={handleImport}
+        onCancel={() => { setImportModalVisible(false); setImportJson(''); }}
+        width={isMobile ? '90vw' : 800}
+        style={{ top: isMobile ? 20 : 100 }}
+        okText="导入"
+        cancelText="取消"
+        confirmLoading={importing}
+      >
+        <p style={{ marginBottom: 8, color: '#666' }}>
+          请粘贴 JSON 格式的题目数组，支持以下格式：
+        </p>
+        <pre style={{ background: '#f5f5f5', padding: 12, borderRadius: 6, fontSize: 12, marginBottom: 12, overflow: 'auto', maxHeight: 120 }}>
+{`[
+  {
+    "title": "题目标题",
+    "content": "题目描述",
+    "type": "choice 或 judge",
+    "options": ["选项A", "选项B", "选项C", "选项D"],
+    "answer": "A",
+    "analysis": "解析",
+    "difficulty": 1-5,
+    "category": "分类",
+    "tags": ["标签1", "标签2"]
+  }
+]`}
+        </pre>
+        <TextArea
+          value={importJson}
+          onChange={(e) => setImportJson(e.target.value)}
+          placeholder="在此粘贴 JSON 数据..."
+          rows={12}
+          style={{ fontFamily: 'monospace', fontSize: 13 }}
+        />
       </Modal>
     </div>
   );
