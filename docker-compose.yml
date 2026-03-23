@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  practice-system:
+    image: practice-system:latest
+    container_name: practice-system
+    restart: unless-stopped
+    ports:
+      - "18080:8080"
+    volumes:
+      # 持久化 SQLite 数据库
+      - ./data/practice.db:/app/practice.db
+      # 持久化前端构建文件（可选，容器内已有）
+      - ./data/dist:/app/dist
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - practice-network
+
+networks:
+  practice-network:
+    driver: bridge

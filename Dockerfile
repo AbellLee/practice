@@ -14,15 +14,17 @@ RUN npm run build
 # ========== 阶段2: 构建后端 ==========
 FROM golang:1.25-alpine AS backend-builder
 
+ENV GOPROXY=https://goproxy.cn,direct
+
 WORKDIR /app/backend
 
 COPY backend/go.mod backend/go.sum ./
-RUN go mod download
+RUN go mod download && go mod tidy
 
 COPY backend/ ./
 COPY --from=frontend-builder /app/backend/dist ./dist
 
-RUN CGO_ENABLED=0 go build -o /app/practice-system .
+RUN go mod tidy && CGO_ENABLED=0 go build -o /app/practice-system .
 
 # ========== 阶段3: 运行 ==========
 FROM alpine:3.19
