@@ -192,8 +192,8 @@ const QuestionDetail: React.FC = () => {
       <div style={{ padding: isMobile ? 12 : 24 }}>
         <Card size={isMobile ? 'small' : 'default'}>
           <div style={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-            <div style={{ fontSize: 16, color: '#666' }}>正在加载题目...</div>
-            <div style={{ fontSize: 12, color: '#999' }}>请等待</div>
+            <div style={{ fontSize: 16, color: 'var(--subtle-text)' }}>正在加载题目...</div>
+            <div style={{ fontSize: 12, color: 'var(--muted-text)' }}>请等待</div>
           </div>
         </Card>
       </div>
@@ -305,7 +305,7 @@ const QuestionDetail: React.FC = () => {
               {Array.from({ length: 5 }, (_, i) => (
                 <span
                   key={i}
-                  style={{ color: i < question.difficulty ? '#f5222d' : '#d9d9d9', fontSize: isMobile ? 14 : 16 }}
+                  style={{ color: i < question.difficulty ? '#f5222d' : 'var(--star-inactive)', fontSize: isMobile ? 14 : 16 }}
                 >
                   ★
                 </span>
@@ -329,7 +329,7 @@ const QuestionDetail: React.FC = () => {
             <Paragraph 
               style={{ 
                 whiteSpace: 'pre-wrap', 
-                background: '#f5f5f5', 
+                background: 'var(--bg-tertiary)', 
                 padding: isMobile ? 12 : 16, 
                 borderRadius: 4,
                 fontSize: isMobile ? 14 : 16,
@@ -438,7 +438,7 @@ const QuestionDetail: React.FC = () => {
                           <>
                             <Divider style={{ margin: isMobile ? '16px 0' : '24px 0' }} />
                             <p style={{ fontSize: isMobile ? 14 : 16, fontWeight: 'bold', marginBottom: 8 }}>答案解析：</p>
-                            <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: '#666' }}>{result.analysis}</p>
+                            <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: 'var(--subtle-text)' }}>{result.analysis}</p>
                           </>
                         )}
                       </div>
@@ -460,7 +460,7 @@ const QuestionDetail: React.FC = () => {
                           <>
                             <Divider style={{ margin: isMobile ? '16px 0' : '24px 0' }} />
                             <p style={{ fontSize: isMobile ? 14 : 16, fontWeight: 'bold', marginBottom: 8 }}>答案解析：</p>
-                            <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: '#666' }}>{result.analysis}</p>
+                            <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: 'var(--subtle-text)' }}>{result.analysis}</p>
                           </>
                         )}
                       </div>

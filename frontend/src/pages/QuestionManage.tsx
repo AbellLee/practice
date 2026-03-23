@@ -125,7 +125,7 @@ const QuestionManage: React.FC = () => {
             <span
               key={i}
               style={{
-                color: i < difficulty ? '#f5222d' : '#d9d9d9',
+                color: i < difficulty ? '#f5222d' : 'var(--star-inactive)',
                 fontSize: 16,
               }}
             >

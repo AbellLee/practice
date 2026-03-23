@@ -405,7 +405,7 @@ const PracticeSession: React.FC = () => {
               {Array.from({ length: 5 }, (_, i) => (
                 <span
                   key={i}
-                  style={{ color: i < (currentQuestion?.difficulty || 0) ? '#f5222d' : '#d9d9d9', fontSize: isMobile ? 14 : 16 }}
+                  style={{ color: i < (currentQuestion?.difficulty || 0) ? '#f5222d' : 'var(--star-inactive)', fontSize: isMobile ? 14 : 16 }}
                 >
                   ★
                 </span>
@@ -424,7 +424,7 @@ const PracticeSession: React.FC = () => {
             <Paragraph 
               style={{ 
                 whiteSpace: 'pre-wrap', 
-                background: '#f5f5f5', 
+                background: 'var(--bg-tertiary)', 
                 padding: isMobile ? 12 : 16, 
                 borderRadius: 4,
                 fontSize: isMobile ? 14 : 16,
@@ -536,7 +536,7 @@ const PracticeSession: React.FC = () => {
                         <p style={{ fontSize: isMobile ? 14 : 16, fontWeight: 'bold', marginBottom: 8 }}>
                           答案解析：
                         </p>
-                        <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: '#666' }}>
+                        <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: 'var(--subtle-text)' }}>
                           {result.analysis}
                         </p>
                       </>
@@ -566,7 +566,7 @@ const PracticeSession: React.FC = () => {
                         <p style={{ fontSize: isMobile ? 14 : 16, fontWeight: 'bold', marginBottom: 8 }}>
                           答案解析：
                         </p>
-                        <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: '#666' }}>
+                        <p style={{ whiteSpace: 'pre-wrap', fontSize: isMobile ? 14 : 16, color: 'var(--subtle-text)' }}>
                           {result.analysis}
                         </p>
                       </>

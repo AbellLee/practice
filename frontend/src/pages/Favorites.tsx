@@ -84,7 +84,7 @@ const Favorites: React.FC = () => {
           {Array.from({ length: 5 }, (_, i) => (
             <span
               key={i}
-              style={{ color: i < (question?.difficulty || 0) ? '#f5222d' : '#d9d9d9' }}
+              style={{ color: i < (question?.difficulty || 0) ? '#f5222d' : 'var(--star-inactive)' }}
             >
               ★
             </span>
@@ -167,14 +167,14 @@ const Favorites: React.FC = () => {
                       <Tag color={favorite.question?.type === 'choice' ? 'blue' : 'green'}>
                         {favorite.question?.type === 'choice' ? '选择题' : '判断题'}
                       </Tag>
-                      <span style={{ marginLeft: 8, fontSize: 12, color: '#666' }}>
+                    <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--subtle-text)' }}>
                         难度：{favorite.question?.difficulty || 1}
-                      </span>
+                    </span>
                     </div>
                     <div style={{ fontWeight: 500, marginBottom: 8 }}>
                       {favorite.question?.title}
                     </div>
-                    <div style={{ fontSize: 12, color: '#999' }}>
+                    <div style={{ fontSize: 12, color: 'var(--muted-text)' }}>
                       收藏于：{new Date(favorite.created_at).toLocaleString()}
                     </div>
                   </Card>

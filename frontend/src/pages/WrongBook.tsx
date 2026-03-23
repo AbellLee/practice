@@ -209,7 +209,7 @@ const WrongBook: React.FC = () => {
                     <div style={{ fontWeight: 500, marginBottom: 8 }}>
                       {record.question?.title}
                     </div>
-                    <div style={{ fontSize: 12, color: '#999' }}>
+                    <div style={{ fontSize: 12, color: 'var(--muted-text)' }}>
                       最后错误：{new Date(record.last_wrong_at).toLocaleString()}
                     </div>
                   </Card>

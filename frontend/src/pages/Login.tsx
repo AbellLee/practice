@@ -61,8 +61,8 @@ const Login: React.FC = () => {
         size={isMobile ? 'small' : 'default'}
       >
         <div style={{ textAlign: 'center', marginBottom: isMobile ? 20 : 30 }}>
-          <Title level={isMobile ? 3 : 2} style={{ fontSize: isMobile ? 20 : 24, margin: 0, color: '#fff' }}>刷题系统</Title>
-          <Title level={5} style={{ color: 'rgba(255,255,255,0.9)', margin: isMobile ? '8px 0 0' : '0' }}>欢迎登录</Title>
+          <Title level={isMobile ? 3 : 2} style={{ fontSize: isMobile ? 20 : 24, margin: 0 }}>刷题系统</Title>
+          <Title level={5} style={{ color: 'rgba(0,0,0,0.45)', margin: isMobile ? '8px 0 0' : '0' }}>欢迎登录</Title>
         </div>
         <Form
           form={form}
