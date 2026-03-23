@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Card, Button, Radio, Space, Typography, Divider, 
   Tag, Alert, Progress, Row, Col, Statistic, Modal,
-  Result, message
+  Result, message, Select, InputNumber, Switch
 } from 'antd';
 import {
   CheckCircleOutlined,
@@ -12,7 +12,7 @@ import {
   ThunderboltOutlined,
   BookOutlined,
 } from '@ant-design/icons';
-import { questionApi, answerApi } from '../api';
+import { questionApi, answerApi, practiceApi } from '../api';
 import type { Question } from '../types';
 
 const { Title, Paragraph, Text } = Typography;
@@ -22,6 +22,7 @@ interface PracticeMode {
   count: number; // 题目数量
   category?: string; // 分类
   difficulty?: number; // 难度
+  excludeMastered: boolean; // 排除已掌握
 }
 
 const PracticeSession: React.FC = () => {
@@ -38,7 +39,11 @@ const PracticeSession: React.FC = () => {
   const [practiceMode, setPracticeMode] = useState<PracticeMode>({
     mode: 'random',
     count: 10,
+    excludeMastered: true,
   });
+  const [categories, setCategories] = useState<string[]>([]);
+  const [availableCount, setAvailableCount] = useState<number>(0);
+  const [showSettings, setShowSettings] = useState(true);
 
   // 答题状态
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -58,11 +63,13 @@ const PracticeSession: React.FC = () => {
   const [showResult, setShowResult] = useState(false);
   const [error, setError] = useState<string>();
 
-  // 加载题目
+  // 加载分类列表
   useEffect(() => {
-    if (questions.length === 0 && !loading) {
-      loadQuestions();
-    }
+    questionApi.getCategories().then(res => {
+      if (res.data) {
+        setCategories(res.data.filter(Boolean));
+      }
+    }).catch(() => {});
   }, []);
 
   // 计时器
@@ -78,17 +85,17 @@ const PracticeSession: React.FC = () => {
   const loadQuestions = async () => {
     setLoading(true);
     setError(undefined);
+    setShowSettings(false);
     try {
-      // 获取所有题目
-      const res = await questionApi.getQuestions({
-        page: 1,
-        pageSize: 1000,
+      const res = await practiceApi.getPracticeQuestions({
         category: practiceMode.category,
         difficulty: practiceMode.difficulty?.toString(),
+        exclude_mastered: practiceMode.excludeMastered ? 'true' : 'false',
       });
 
-      if (res.data && res.data.list.length > 0) {
+      if (res.data && res.data.list && res.data.list.length > 0) {
         let selectedQuestions = [...res.data.list];
+        setAvailableCount(res.data.available || selectedQuestions.length);
 
         // 随机抽题
         if (practiceMode.mode === 'random') {
@@ -107,7 +114,11 @@ const PracticeSession: React.FC = () => {
           setStartTime(Date.now());
         }
       } else {
-        setError('没有找到题目，请先添加题目');
+        if (practiceMode.excludeMastered) {
+          setError('没有未掌握的题目了，可以关闭"排除已掌握"试试');
+        } else {
+          setError('没有找到题目，请先添加题目');
+        }
       }
     } catch (error: any) {
       console.error('加载题目失败:', error);
@@ -189,7 +200,8 @@ const PracticeSession: React.FC = () => {
         setSelectedAnswer('');
         setResult(null);
         setShowResult(false);
-        loadQuestions();
+        setQuestions([]);
+        setShowSettings(true);
       },
     });
   };
@@ -207,45 +219,110 @@ const PracticeSession: React.FC = () => {
   };
 
   // 显示设置页面
-  if (questions.length === 0 && !loading) {
+  if (showSettings) {
     return (
       <div style={{ padding: isMobile ? 12 : 24 }}>
         <Card size={isMobile ? 'small' : 'default'}>
           <div style={{ marginBottom: 24 }}>
             <Title level={isMobile ? 4 : 3}>答题设置</Title>
-            <Text type="secondary">配置答题模式和题目数量</Text>
+            <Text type="secondary">配置答题模式、分类和题目数量</Text>
           </div>
 
           <div style={{ marginBottom: 24 }}>
             <Text strong>答题模式：</Text>
-            <Radio.Group
-              value={practiceMode.mode}
-              onChange={(e) => setPracticeMode(prev => ({ ...prev, mode: e.target.value }))}
-              style={{ marginTop: 8 }}
-            >
-              <Radio.Button value="random">
-                <ThunderboltOutlined /> 随机抽题
-              </Radio.Button>
-              <Radio.Button value="sequential">
-                <BookOutlined /> 顺序答题
-              </Radio.Button>
-            </Radio.Group>
+            <div style={{ marginTop: 8 }}>
+              <Radio.Group
+                value={practiceMode.mode}
+                onChange={(e) => setPracticeMode(prev => ({ ...prev, mode: e.target.value }))}
+              >
+                <Radio.Button value="random">
+                  <ThunderboltOutlined /> 随机抽题
+                </Radio.Button>
+                <Radio.Button value="sequential">
+                  <BookOutlined /> 顺序答题
+                </Radio.Button>
+              </Radio.Group>
+            </div>
           </div>
+
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            <Col xs={24} sm={12}>
+              <Text strong>题目分类：</Text>
+              <div style={{ marginTop: 8 }}>
+                <Select
+                  placeholder="全部分类"
+                  allowClear
+                  style={{ width: '100%' }}
+                  value={practiceMode.category}
+                  onChange={(value) => setPracticeMode(prev => ({ ...prev, category: value }))}
+                  options={categories.map(c => ({ label: c, value: c }))}
+                />
+              </div>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Text strong>难度等级：</Text>
+              <div style={{ marginTop: 8 }}>
+                <Select
+                  placeholder="全部难度"
+                  allowClear
+                  style={{ width: '100%' }}
+                  value={practiceMode.difficulty}
+                  onChange={(value) => setPracticeMode(prev => ({ ...prev, difficulty: value }))}
+                  options={[
+                    { label: '⭐ 简单', value: 1 },
+                    { label: '⭐⭐ 较易', value: 2 },
+                    { label: '⭐⭐⭐ 中等', value: 3 },
+                    { label: '⭐⭐⭐⭐ 较难', value: 4 },
+                    { label: '⭐⭐⭐⭐⭐ 困难', value: 5 },
+                  ]}
+                />
+              </div>
+            </Col>
+          </Row>
 
           <div style={{ marginBottom: 24 }}>
             <Text strong>题目数量：</Text>
-            <Radio.Group
-              value={practiceMode.count}
-              onChange={(e) => setPracticeMode(prev => ({ ...prev, count: e.target.value }))}
-              style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}
-            >
-              <Radio value={5}>5 题</Radio>
-              <Radio value={10}>10 题</Radio>
-              <Radio value={20}>20 题</Radio>
-              <Radio value={50}>50 题</Radio>
-              <Radio value={100}>100 题</Radio>
-            </Radio.Group>
+            <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+              {[5, 10, 20, 50, 100].map(n => (
+                <Button
+                  key={n}
+                  type={practiceMode.count === n ? 'primary' : 'default'}
+                  onClick={() => setPracticeMode(prev => ({ ...prev, count: n }))}
+                >
+                  {n} 题
+                </Button>
+              ))}
+              <InputNumber
+                min={1}
+                max={500}
+                value={[5, 10, 20, 50, 100].includes(practiceMode.count) ? undefined : practiceMode.count}
+                placeholder="自定义"
+                style={{ width: 120 }}
+                onChange={(value) => {
+                  if (value && value > 0) {
+                    setPracticeMode(prev => ({ ...prev, count: value }));
+                  }
+                }}
+              />
+            </div>
           </div>
+
+          <div style={{ marginBottom: 24 }}>
+            <Space align="center">
+              <Switch
+                checked={practiceMode.excludeMastered}
+                onChange={(checked) => setPracticeMode(prev => ({ ...prev, excludeMastered: checked }))}
+              />
+              <Text strong>排除已掌握的题目</Text>
+            </Space>
+            <div style={{ marginTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                已掌握 = 连续答对3次以上或手动标记掌握的题目
+              </Text>
+            </div>
+          </div>
+
+          <Divider />
 
           <Space size={16}>
             <Button 
@@ -280,7 +357,7 @@ const PracticeSession: React.FC = () => {
             title={error}
             extra={
               <Space direction={isMobile ? 'vertical' : 'horizontal'} size={16}>
-                <Button type="primary" onClick={loadQuestions}>重试</Button>
+                <Button type="primary" onClick={() => { setError(undefined); setShowSettings(true); }}>返回设置</Button>
                 <Button onClick={() => navigate('/questions')}>返回列表</Button>
               </Space>
             }

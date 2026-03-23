@@ -9,6 +9,113 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetPracticeQuestions 获取练习题目（支持排除已掌握的题目）
+// 掌握标准：连续正确回答3次及以上
+func GetPracticeQuestions(c *gin.Context) {
+	userIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success": false,
+			"message": "用户未认证",
+		})
+		return
+	}
+	userID := userIDVal.(uint)
+
+	category := c.Query("category")
+	difficulty := c.Query("difficulty")
+	questionType := c.Query("type")
+	excludeMastered := c.DefaultQuery("exclude_mastered", "false")
+
+	query := models.GetDB().Model(&models.Question{})
+
+	if category != "" {
+		query = query.Where("category = ?", category)
+	}
+	if difficulty != "" {
+		query = query.Where("difficulty = ?", difficulty)
+	}
+	if questionType != "" {
+		query = query.Where("type = ?", questionType)
+	}
+
+	// 排除已掌握的题目
+	if excludeMastered == "true" {
+		// 找出连续答对3次以上的题目ID
+		var masteredIDs []uint
+		rows, err := models.GetDB().Raw(`
+			SELECT question_id FROM (
+				SELECT question_id,
+					(SELECT COUNT(*) FROM answer_records ar2 
+					 WHERE ar2.user_id = ? AND ar2.question_id = answer_records.question_id
+					 AND ar2.deleted_at IS NULL
+					 AND ar2.id >= (
+						SELECT COALESCE(MAX(ar3.id), 0) FROM answer_records ar3 
+						WHERE ar3.user_id = ? AND ar3.question_id = answer_records.question_id 
+						AND ar3.is_correct = 0 AND ar3.deleted_at IS NULL
+					 )
+					 AND ar2.is_correct = 1
+					) as consecutive_correct
+				FROM answer_records
+				WHERE user_id = ? AND deleted_at IS NULL
+				GROUP BY question_id
+			) t WHERE consecutive_correct >= 3
+		`, userID, userID, userID).Rows()
+
+		if err == nil {
+			defer rows.Close()
+			for rows.Next() {
+				var id uint
+				rows.Scan(&id)
+				masteredIDs = append(masteredIDs, id)
+			}
+		}
+
+		// 也排除错题本中标记为已掌握的题目
+		var wrongBookMasteredIDs []uint
+		models.GetDB().Model(&models.WrongBook{}).
+			Where("user_id = ? AND mastered = ?", userID, true).
+			Pluck("question_id", &wrongBookMasteredIDs)
+		masteredIDs = append(masteredIDs, wrongBookMasteredIDs...)
+
+		if len(masteredIDs) > 0 {
+			query = query.Where("id NOT IN ?", masteredIDs)
+		}
+	}
+
+	var questions []models.Question
+	if err := query.Order("id ASC").Find(&questions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "获取题目失败",
+		})
+		return
+	}
+
+	// 统计掌握信息
+	var totalCount int64
+	countQuery := models.GetDB().Model(&models.Question{})
+	if category != "" {
+		countQuery = countQuery.Where("category = ?", category)
+	}
+	if difficulty != "" {
+		countQuery = countQuery.Where("difficulty = ?", difficulty)
+	}
+	if questionType != "" {
+		countQuery = countQuery.Where("type = ?", questionType)
+	}
+	countQuery.Count(&totalCount)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"list":          questions,
+			"total":         totalCount,
+			"available":     len(questions),
+		},
+	})
+}
+
 // GetFavorites 获取收藏列表
 func GetFavorites(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
@@ -283,10 +390,10 @@ func GetStatistics(c *gin.Context) {
 		Correct  int64
 	}
 	var categoryStats []CategoryStats
-	models.GetDB().Table("answer_records").
+	models.GetDB().Table("answer_records ar").
 		Select("q.category, COUNT(*) as count, SUM(CASE WHEN ar.is_correct = 1 THEN 1 ELSE 0 END) as correct").
 		Joins("JOIN questions q ON ar.question_id = q.id").
-		Where("ar.user_id = ?", userID).
+		Where("ar.user_id = ? AND ar.deleted_at IS NULL", userID).
 		Group("q.category").
 		Scan(&categoryStats)
 

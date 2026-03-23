@@ -131,4 +131,14 @@ export const practiceApi = {
   getStatistics: () => {
     return api.get<ApiResponse<Statistics>>('/practice/statistics');
   },
+
+  // 获取练习题目（支持排除已掌握）
+  getPracticeQuestions: (params?: {
+    category?: string;
+    difficulty?: string;
+    type?: string;
+    exclude_mastered?: string;
+  }) => {
+    return api.get<ApiResponse<{ list: Question[]; total: number; available: number }>>('/practice/questions', { params });
+  },
 };

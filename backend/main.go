@@ -29,7 +29,7 @@ func main() {
 	setupFrontend(r)
 
 	// 启动服务器（监听所有网络接口，支持局域网访问）
-	r.Run("0.0.0.0:18080")
+	r.Run("0.0.0.0:8080")
 }
 
 // setupFrontend 配置前端静态文件服务
@@ -87,7 +87,7 @@ func setupRoutes(r *gin.Engine) {
 		// 认证路由
 		auth := api.Group("/auth")
 		{
-			auth.POST("/register", controllers.Register)
+			// auth.POST("/register", controllers.Register) // 注册功能已禁用
 			auth.POST("/login", controllers.Login)
 			
 			// 需要认证的路由
@@ -96,6 +96,7 @@ func setupRoutes(r *gin.Engine) {
 			{
 				authAuth.GET("/me", controllers.GetCurrentUser)
 				authAuth.GET("/stats", controllers.GetUserStats)
+				authAuth.POST("/change-password", controllers.ChangePassword)
 			}
 		}
 
@@ -140,6 +141,9 @@ func setupRoutes(r *gin.Engine) {
 			practice.GET("/wrong-book", controllers.GetWrongBook)
 			practice.POST("/wrong-book/:id/review", controllers.MarkWrongBookReviewed)
 			
+			// 练习题目（支持排除已掌握）
+			practice.GET("/questions", controllers.GetPracticeQuestions)
+
 			// 每日练习
 			practice.GET("/daily", controllers.GetDailyPractice)
 			

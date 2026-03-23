@@ -72,9 +72,15 @@ func SubmitAnswer(c *gin.Context) {
 		return
 	}
 
-	// 更新用户统计
+	// 更新用户统计（如果不存在则创建）
 	var stats models.UserStats
-	if err := models.GetDB().Where("user_id = ?", userID).First(&stats).Error; err == nil {
+	if err := models.GetDB().Where("user_id = ?", userID).First(&stats).Error; err != nil {
+		stats = models.UserStats{
+			UserID: userID,
+		}
+		models.GetDB().Create(&stats)
+	}
+	{
 		stats.TotalAnswered++
 		if isCorrect {
 			stats.CorrectCount++

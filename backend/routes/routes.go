@@ -70,6 +70,9 @@ func SetupRoutes(r *gin.Engine) {
 			practice.GET("/wrong-book", controllers.GetWrongBook)
 			practice.POST("/wrong-book/:id/review", controllers.MarkWrongBookReviewed)
 			
+			// 练习题目（支持排除已掌握）
+			practice.GET("/questions", controllers.GetPracticeQuestions)
+
 			// 每日练习
 			practice.GET("/daily", controllers.GetDailyPractice)
 			
